@@ -1,6 +1,8 @@
 import { readdir } from "fs/promises";
 import { io } from "./app";
-import { db } from "./database";
+import { send } from "./broadcast";
+import { force } from "./cmds";
+import { chans, db } from "./database";
 import { Context, DbObj } from "./definitions";
 import flags from "./flags";
 import parser from "./parser";
@@ -18,14 +20,46 @@ export const id = async () => {
 };
 
 export const login = async (ctx: Context, player: DbObj) => {
-  const dbref = `${player.dbref}`;
+  const dbref = `#${player.dbref}`;
   ctx.socket.join(dbref);
   ctx.socket.join(`${player?.data?.location}`);
   ctx.socket.join(`${player?._id}`);
   ctx.socket.cid = player._id;
   ctx.socket.request.session.cid = player._id || "";
   ctx.socket.request.session.save();
-  io.to(ctx.socket.id).emit("login", player._id);
+
+  const channels = await chans.find({});
+  channels.forEach(async (channel) => {
+    if (channel.alias && flags.check(player.flags, channel.lock || "")) {
+      const chan = player.data?.channels?.filter(
+        (ch) => ch.channel === channel.name
+      );
+      console.log(chan);
+      if (!chan) {
+        player.data ||= {};
+        player.data.channels ||= [];
+
+        player.data?.channels?.push({
+          channel: channel.name,
+          alias: channel.alias,
+          active: true,
+        });
+        ctx.socket.join(channel.name);
+        await db.update({ _id: player._id }, player);
+        await force(ctx.socket, `${channel.alias} :has joined the channel.`);
+        send(
+          ctx.socket.id,
+          `You have joined ${channel.name} with the alias '${channel.alias}'.`
+        );
+      }
+    }
+  });
+
+  player.data?.channels?.forEach(
+    (channel) => channel.active && ctx.socket.join(channel.channel)
+  );
+
+  await set(player, "connected");
 };
 
 /**

@@ -1,7 +1,7 @@
 import { join } from "path";
 import { server } from "./app";
 import { db } from "./database";
-import { plugins } from "./utils";
+import { plugins, set } from "./utils";
 
 server.listen(3001, async () => {
   console.log("Server is running on port 3000");
@@ -15,4 +15,16 @@ server.listen(3001, async () => {
       flags: "room",
     });
   }
+});
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down...");
+  console.log("Clearing the DB....");
+  const players = await db.find({ flags: /connected/ });
+  for (const player of players) {
+    await set(player, "!connected");
+  }
+  console.log("Done!");
+
+  process.exit();
 });

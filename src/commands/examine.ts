@@ -12,7 +12,7 @@ export default () => {
       const en = await db.findOne({ _id: ctx.socket.cid });
       const tar = await target(en, args[1]);
 
-      if (canEdit(en, tar)) {
+      if (en && tar && canEdit(en, tar)) {
         delete tar.data?.password;
         let output = `%chName:%cn ${tar.name}\n`;
         output += `%chDBRef:%cn #${tar.dbref}\n`;

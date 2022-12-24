@@ -1,5 +1,6 @@
 import { readdir } from "fs/promises";
 import { send } from "./broadcast";
+import { matchChannel } from "./channels";
 import { db } from "./database";
 import { Cmd, Context, MuSocket } from "./definitions";
 import flags from "./flags";
@@ -40,14 +41,20 @@ export const addCmd = (...commands: Cmd[]) =>
  */
 export const matchCmd = async (ctx: Context) => {
   const player = await db.findOne({ _id: ctx.socket.cid });
-  for (const cmd of cmds) {
-    const matches = ctx?.text?.replace("\r\n", "").match(cmd?.pattern);
-    if (matches) {
-      if (flags.check(player?.flags || "", cmd?.flags || "")) {
-        ctx.data.player = player;
-        return cmd?.render(ctx, matches);
+  const chans = player?.data?.channels || [];
+
+  if (!(await matchChannel(ctx))) {
+    for (const cmd of cmds) {
+      const matches = ctx?.text?.replace("\r\n", "").match(cmd?.pattern);
+      if (matches) {
+        if (flags.check(player?.flags || "", cmd?.flags || "")) {
+          ctx.data.player = player;
+          return cmd?.render(ctx, matches);
+        }
       }
     }
+  } else {
+    return;
   }
 
   if (player) return send(ctx.socket.id, "Huh? (Type 'help' for help.)");

@@ -31,6 +31,7 @@ export interface DbObj {
     location?: string;
     description?: string;
     password?: string;
+    channels?: ChanEntry[];
   };
 }
 
