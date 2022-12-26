@@ -10,6 +10,7 @@ import { readFile } from "fs/promises";
 import session from "express-session";
 import fileStorage from "session-file-store";
 import { db } from "./database";
+import { player, set } from "./utils";
 
 declare module "http" {
   interface IncomingMessage {
@@ -98,6 +99,14 @@ io.on("connection", async (socket: MuSocket) => {
 
   socket.on("chat message", (msg) => {
     matchCmd({ socket, text: msg.msg, data: msg.data, scope: {} });
+  });
+
+  socket.on("disconnect", async () => {
+    if (socket.cid) {
+      const en = await player(socket.cid);
+      await set(en, "!connected");
+      if (en) send(en.data?.location || "", `${en.name} has disconnected.`);
+    }
   });
 });
 

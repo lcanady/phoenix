@@ -2,14 +2,12 @@ import { io } from "../app";
 import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import { db } from "../database";
-import flags from "../flags";
 import { set } from "../utils";
 
 export default () =>
   addCmd({
     name: "quit",
     pattern: "quit",
-    flags: "connected",
     render: async (ctx) => {
       ctx.socket.request.session.destroy(async () => {
         if (ctx.socket.cid) {

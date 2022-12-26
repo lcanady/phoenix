@@ -31,6 +31,11 @@ const flags = new Tags(
     lock: "wizard",
   },
   {
+    name: "exit",
+    code: "e",
+    lock: "wizard",
+  },
+  {
     name: "player",
     code: "p",
     lock: "wizard",
@@ -39,6 +44,10 @@ const flags = new Tags(
     name: "connected",
     code: "c",
     lock: "wizard",
+  },
+  {
+    name: "safe",
+    code: "S",
   },
   {
     name: "dark",

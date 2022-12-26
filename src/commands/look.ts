@@ -1,7 +1,7 @@
 import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import { db } from "../database";
-import { displayName } from "../utils";
+import { center, columns, displayName, idle, ljust, rjust } from "../utils";
 
 export default () =>
   addCmd({
@@ -27,14 +27,48 @@ export default () =>
         const contents = await db.find({
           $and: [{ "data.location": target?._id }, { flags: /connected/i }],
         });
-        const desc =
-          displayName(player, target) +
+
+        const exits = await db.find({
+          $and: [{ "data.location": target?._id }, { flags: /exit/i }],
+        });
+        let desc =
+          center(`%ch%b${displayName(player, target)}%b%cn`, 80, "=") +
           "\n" +
           (target.data?.description || "You see nothing special.") +
-          "\n" +
-          "contents: " +
-          contents.map((item) => displayName(player, item)).join(", ");
+          "\n";
 
+        if (contents.length) {
+          desc += [center("%ch%bCharacters%cn%b", 80, "-")] + "\n";
+          for (const cont of contents.sort((a, b) =>
+            a.name.localeCompare(b?.name)
+          )) {
+            desc +=
+              ljust(displayName(player, cont), 25) +
+              rjust(
+                idle(
+                  (cont._id === player._id ? 0 : cont.data?.lastCommand) || 0
+                ),
+                5
+              );
+            const shortdesc = cont.data?.shortdesc
+              ? "%b%b" + cont.data?.shortdesc
+              : "%b%b%ch%cxUse '@shortdesc <desc>' to set this.%cn";
+            desc += shortdesc.padEnd(48) + "\n";
+          }
+        }
+
+        if (exits.length) {
+          desc +=
+            [center("%ch%bExits%cn%b", 80, "-")] +
+            columns(
+              exits
+                .map((item) => displayName(player, item))
+                .sort((a, b) => a.localeCompare(b)),
+              80,
+              2
+            );
+        }
+        desc += "=".repeat(80);
         send(ctx.socket.id, desc);
       }
     },

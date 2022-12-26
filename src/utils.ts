@@ -1,5 +1,4 @@
 import { readdir } from "fs/promises";
-import { io } from "./app";
 import { send } from "./broadcast";
 import { force } from "./cmds";
 import { chans, db } from "./database";
@@ -23,6 +22,7 @@ export const login = async (ctx: Context, player: DbObj) => {
   const dbref = `#${player.dbref}`;
   ctx.socket.join(dbref);
   ctx.socket.join(`${player?.data?.location}`);
+  send(player?.data?.location || "", `${player.name} has entered the game.`);
   ctx.socket.join(`${player?._id}`);
   ctx.socket.cid = player._id;
   ctx.socket.request.session.cid = player._id || "";
@@ -34,7 +34,7 @@ export const login = async (ctx: Context, player: DbObj) => {
       const chan = player.data?.channels?.filter(
         (ch) => ch.channel === channel.name
       );
-      console.log(chan);
+
       if (!chan) {
         player.data ||= {};
         player.data.channels ||= [];
@@ -70,11 +70,13 @@ export const login = async (ctx: Context, player: DbObj) => {
 export const displayName = (enactor: DbObj, target: DbObj) => {
   // If the enactor has a higher level than the target, display the name, dbref
   // and flags of the target
+  const name = target.name?.split(";") || [];
+  const sc = name[1] ? "<%ch" + name[1].toUpperCase() + "%cn>%b" : "";
   if (canEdit(enactor, target)) {
-    return `${target.name}(#${target.dbref}${flags.codes(target.flags)})`;
+    return `${sc}${name[0]}(#${target.dbref}${flags.codes(target.flags)})`;
   }
 
-  return target.name;
+  return sc + target.name;
 };
 
 export const plugins = async (dir: string) => {
@@ -204,4 +206,44 @@ export const set = async (target: DbObj, flgs: string) => {
   target.data = data;
   await db.update({ _id: target._id }, target);
   return target;
+};
+
+export const idle = (secs: number) => {
+  const snds = secs ? Math.round((Date.now() - secs) / 1000) : 0;
+
+  let time;
+  switch (true) {
+    case snds < 60:
+      time = `${snds}s`;
+      break;
+    case snds < 3600:
+      time = `${Math.floor(snds / 60)}m`;
+      break;
+    case snds < 86400:
+      time = `${Math.floor(snds / 3600)}h`;
+      break;
+    case snds < 604800:
+      time = `${Math.floor(snds / 86400)}d`;
+      break;
+    case snds < 2419200:
+      time = `${Math.floor(snds / 604800)}w`;
+      break;
+    case snds < 29030400:
+      time = `${Math.floor(snds / 2419200)}m`;
+      break;
+    default:
+      time = `${Math.floor(snds / 29030400)}y`;
+      break;
+  }
+
+  switch (true) {
+    case snds < 60:
+      return `%ch%cg${time}%cn`;
+    case snds < 60 * 60 * 10:
+      return `%ch%cy${time}%cn`;
+    case snds < 60 * 60 * 25:
+      return `%ch%cr${time}%cn`;
+    default:
+      return `%ch%cx${time}%cn`;
+  }
 };

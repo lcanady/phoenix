@@ -15,6 +15,7 @@ export default () => {
       if (en && tar && canEdit(en, tar)) {
         delete tar.data?.password;
         let output = `%chName:%cn ${tar.name}\n`;
+        output += `%chID:%cn ${tar._id}\n`;
         output += `%chDBRef:%cn #${tar.dbref}\n`;
         output += `%chFlags:%cn ${tar.flags}\n`;
         output += `Location: ${displayName(
@@ -25,7 +26,7 @@ export default () => {
         output += `Contents: ${tar.data?.contents}\n`;
         output += `Exits: ${tar.data?.exits}\n`;
         output += `Data: ${JSON.stringify(tar.data, null, 2)}`;
-        send(ctx.socket.id, output);
+        return send(ctx.socket.id, output);
       }
       send(ctx.socket.id, "You can't examine that.");
     },

@@ -6,6 +6,10 @@ import { plugins, set } from "./utils";
 server.listen(3001, async () => {
   console.log("Server is running on port 3000");
   plugins(join(__dirname, "commands"));
+  const players = await db.find({ flags: /connected/ });
+  for (const player of players) {
+    await set(player, "!connected");
+  }
   const limbo = await db.findOne({ dbref: 0 });
   if (!limbo) {
     console.log("No Limbo!, creating one!");

@@ -23,12 +23,15 @@ export interface MuSocket extends Socket {
 
 export interface DbObj {
   _id?: string;
-  name?: string;
-  dbref?: number;
+  name: string;
+  dbref: number;
   flags: string;
   data?: {
     [key: string]: any;
+    lastCommand?: number;
     location?: string;
+    attributes?: { name: string; value: string; setter: string }[];
+    destination?: string;
     description?: string;
     password?: string;
     channels?: ChanEntry[];

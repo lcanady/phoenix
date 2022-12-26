@@ -4,6 +4,7 @@ import { matchChannel } from "./channels";
 import { db } from "./database";
 import { Cmd, Context, MuSocket } from "./definitions";
 import flags from "./flags";
+import { matchExits } from "./movement";
 
 let cmds: Cmd[] = [];
 let text: Map<string, string> = new Map();
@@ -42,22 +43,30 @@ export const addCmd = (...commands: Cmd[]) =>
 export const matchCmd = async (ctx: Context) => {
   const player = await db.findOne({ _id: ctx.socket.cid });
   const chans = player?.data?.channels || [];
-
-  if (!(await matchChannel(ctx))) {
-    for (const cmd of cmds) {
-      const matches = ctx?.text?.replace("\r\n", "").match(cmd?.pattern);
-      if (matches) {
-        if (flags.check(player?.flags || "", cmd?.flags || "")) {
-          ctx.data.player = player;
-          return cmd?.render(ctx, matches);
-        }
-      }
-    }
-  } else {
-    return;
+  if (player) {
+    player.data ||= {};
+    player.data.lastCommand = Date.now();
+    await db.update({ _id: player._id }, player);
   }
 
-  if (player) return send(ctx.socket.id, "Huh? (Type 'help' for help.)");
+  matchChannel(ctx).then((matched) => {
+    if (!matched)
+      matchExits(ctx).then((matched) => {
+        if (!matched) {
+          for (const cmd of cmds) {
+            const matches = ctx?.text?.replace("\r\n", "").match(cmd?.pattern);
+            if (matches) {
+              if (flags.check(player?.flags || "", cmd?.flags || "")) {
+                ctx.data.player = player;
+                return cmd?.render(ctx, matches);
+              }
+            }
+          }
+          if (player)
+            return send(ctx.socket.id, "Huh? (Type 'help' for help.)");
+        }
+      });
+  });
 };
 
 export const force = async (
