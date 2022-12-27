@@ -36,8 +36,10 @@ export default () => {
       );
 
       // now we can send the page message to the targets
-      let msgOrReply = msg ? msg : reply;
+      let msgOrReply = msg ? msg.trim() : reply.trim();
       let tempmsg = "";
+      let sendermsg = "";
+      let senderHeader = `To (${targetNames.join(", ")}),`;
       let header =
         targetIds.length > 1 ? `To (${targetNames.join(", ")}),` : "From afar,";
       switch (true) {
@@ -45,9 +47,17 @@ export default () => {
           tempmsg = `${header} ${en.name}${
             en.data?.alias ? "(" + en.data?.alias + ")" : ""
           }${msgOrReply.slice(1)}`;
+          sendermsg = `${senderHeader} ${en.name}${
+            en.data?.alias ? "(" + en.data?.alias + ")" : ""
+          }${msgOrReply.slice(1)}`;
+
           break;
         case msgOrReply.trim().startsWith(":"):
           tempmsg = `${header} ${en.name}${
+            en.data?.alias ? "(" + en.data?.alias + ")" : ""
+          } ${msgOrReply.slice(1)}`;
+
+          sendermsg = `${senderHeader} ${en.name}${
             en.data?.alias ? "(" + en.data?.alias + ")" : ""
           } ${msgOrReply.slice(1)}`;
           break;
@@ -55,10 +65,14 @@ export default () => {
           tempmsg = `${header} ${en.name}${
             en.data?.alias ? "(" + en.data?.alias + ")" : ""
           } pages: ${msgOrReply}`;
+
+          sendermsg = `${senderHeader} ${en.name}${
+            en.data?.alias ? "(" + en.data?.alias + ")" : ""
+          } pages: ${msgOrReply}`;
       }
 
       if (en.data?.lastpage && reply) {
-        en.data.lastpage.push(ctx.socket.cid);
+        send(ctx.socket.id, sendermsg);
         return send(en.data.lastpage, tempmsg);
       }
 
@@ -67,10 +81,9 @@ export default () => {
       }
 
       // now we can send the page message to the targets
-
-      targetIds.push(ctx.socket.cid);
       const targts = Array.from(new Set(targetIds));
       send(targts, tempmsg);
+      send(ctx.socket.id, sendermsg);
       en.data ||= {};
       en.data.lastpage = targts;
       await db.update({ _id: en._id }, en);

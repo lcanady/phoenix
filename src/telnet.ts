@@ -50,4 +50,6 @@ const serv = tcpServer((socket: MuTelnetSocket) => {
   });
 });
 
+serv.on("error", (err) => console.log(err));
+
 serv.listen(4202, () => console.log("TCP Server listening on port 4201"));

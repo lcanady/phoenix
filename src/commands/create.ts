@@ -1,6 +1,6 @@
 import { sha512 } from "js-sha512";
 import { send } from "../broadcast";
-import { addCmd } from "../cmds";
+import { addCmd, force } from "../cmds";
 import { db } from "../database";
 import { Cmd } from "../definitions";
 import { id, login } from "../utils";
@@ -30,6 +30,7 @@ export default () =>
 
         send(ctx.socket.id, `Welcome to the game, ${args[1]}!`);
         await login(ctx, user);
+        await force(ctx, "look");
       } else {
         send(ctx.socket.id, "That name is already in use");
       }
