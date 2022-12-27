@@ -1,6 +1,7 @@
 import { send } from "../broadcast";
 import { addCmd, force } from "../cmds";
 import { chans, db } from "../database";
+import flags from "../flags";
 import { player } from "../utils";
 
 export default () => {
@@ -131,6 +132,10 @@ export default () => {
     hidden: true,
     render: async (ctx, args) => {
       const chan = await chans.findOne({ name: RegExp(args[1], "i") });
+      if (!flags.check(ctx.socket.flags || "", chan.lock || "")) {
+        return send(ctx.socket.id, "Permission denied.");
+      }
+
       if (chan) {
         const en = await player(ctx.socket.cid);
         en.data ||= {};
