@@ -133,7 +133,8 @@ export default () => {
     render: async (ctx, args) => {
       const chan = await chans.findOne({ name: RegExp(args[1], "i") });
       if (!flags.check(ctx.socket.flags || "", chan.lock || "")) {
-        return send(ctx.socket.id, "Permission denied.");
+        send(ctx.socket.id, "Permission denied.");
+        return;
       }
 
       if (chan) {
