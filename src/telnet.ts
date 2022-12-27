@@ -31,7 +31,6 @@ const serv = tcpServer((socket: MuTelnetSocket) => {
     socket.end();
   });
   io.on("disconnect", (reason: string) => {
-    console.log("disconnect", reason);
     if (
       reason === "io server disconnect" ||
       reason === "io client disconnect"

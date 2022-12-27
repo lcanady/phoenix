@@ -38,7 +38,7 @@ export default () => {
       const flagCheck = args[2]
         .split(" ")
         .map((fl) => (fl.startsWith("!") ? fl.slice(1) : fl))
-        .map((fl) => flags.check(player.flags, fl));
+        .map((fl) => flags.check(player.flags, flags.exists(fl).lock || ""));
 
       if (!canEdit(player, target))
         return send(ctx.socket.id, "I can't find that.");
