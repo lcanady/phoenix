@@ -73,10 +73,11 @@ export const displayName = (enactor: DbObj, target: DbObj) => {
   const name = target.name?.split(";") || [];
   const sc = name[1] ? "<%ch" + name[1].toUpperCase() + "%cn>%b" : "";
   if (canEdit(enactor, target)) {
-    return `${sc}${name[0]}(#${target.dbref}${flags.codes(target.flags)})`;
+    const flgs = `(#${target.dbref}${flags.codes(target.flags)})`;
+    return `${sc}${name[0].slice(0, 25 - flgs.length)}${flgs}`;
   }
 
-  return sc + target.name;
+  return sc + target.name.split(";")[0];
 };
 
 export const plugins = async (dir: string) => {
@@ -140,7 +141,7 @@ export const repeatString = (string = " ", length: number) => {
     cleanArray = cleanArray[0].split("");
   }
   return (
-    string.repeat(length / parser.stripSubs("telnet", string).length) +
+    string?.repeat(length / parser.stripSubs("telnet", string).length) +
     cleanArray.slice(0, remainder)
   );
 };
@@ -237,13 +238,61 @@ export const idle = (secs: number) => {
   }
 
   switch (true) {
-    case snds < 60:
-      return `%ch%cg${time}%cn`;
     case snds < 60 * 60 * 10:
+      return `%ch%cg${time}%cn`;
+    case snds < 60 * 60 * 15:
       return `%ch%cy${time}%cn`;
     case snds < 60 * 60 * 25:
       return `%ch%cr${time}%cn`;
     default:
       return `%ch%cx${time}%cn`;
   }
+};
+
+export const dbObj = async (name: string, flags = "", data = {}) => {
+  const obj = {
+    name,
+    flags,
+    data,
+    dbref: await id(),
+  };
+
+  return await db.insert(obj);
+};
+
+export const getAttr = (target: DbObj, attr: string) => {
+  target.data ||= {};
+  target.data.attributes || -[];
+  const attribute = target.data.attributes?.find((a) => a.name === attr);
+  return { setter: attribute?.setter, value: attribute?.value };
+};
+
+export const setAttr = async (
+  enactor: DbObj,
+  target: DbObj,
+  attr: string,
+  value: any
+) => {
+  target.data ||= {};
+  target.data.attributes ||= [];
+
+  const attribute = target.data.attributes.find((a) => a.name === attr);
+  if (attribute && canEdit(enactor, target)) {
+    attribute.value = value;
+  } else {
+    target.data.attributes.push({
+      name: attr,
+      value,
+      setter: `#${enactor.dbref}`,
+    });
+  }
+
+  await db.update({ _id: target._id }, target);
+};
+
+export const canSee = (enactor: DbObj, target: DbObj) => {
+  if (target.flags.includes("dark") && (flags.lvl(enactor.flags) || 0) < 1) {
+    return false;
+  }
+  return true;
 };

@@ -2,6 +2,7 @@ import { send } from "./broadcast";
 import { force } from "./cmds";
 import { db } from "./database";
 import { Context } from "./definitions";
+import flags from "./flags";
 import { player } from "./utils";
 
 export const matchExits = async (ctx: Context) => {
@@ -19,7 +20,7 @@ export const matchExits = async (ctx: Context) => {
       if (match) {
         const dest = await db.findOne({ _id: exit.data?.destination });
 
-        if (dest) {
+        if (dest && flags.check(en.flags, exit?.data?.lock || "")) {
           send(en.data.location || "", `${en.name} has left.`);
           ctx.socket.leave(en.data.location || "");
           en.data.location = dest?._id;
@@ -27,6 +28,9 @@ export const matchExits = async (ctx: Context) => {
           ctx.socket.join(en.data.location || "");
           send(en.data.location || "", `${en.name} has arrived.`);
           force(ctx.socket, "look");
+          return true;
+        } else {
+          send(ctx.socket.id, "You can't go that way.");
           return true;
         }
       }

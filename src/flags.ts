@@ -54,8 +54,12 @@ const flags = new Tags(
     code: "d",
   },
   {
-    name: "html",
-    code: "h",
+    name: "no_teleport",
+    code: "n",
+  },
+  {
+    name: "safe",
+    code: "S",
   }
 );
 

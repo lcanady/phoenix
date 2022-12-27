@@ -1,7 +1,17 @@
 import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import { db } from "../database";
-import { center, columns, displayName, idle, ljust, rjust } from "../utils";
+import flags from "../flags";
+import {
+  canSee,
+  center,
+  columns,
+  displayName,
+  getAttr,
+  idle,
+  ljust,
+  rjust,
+} from "../utils";
 
 export default () =>
   addCmd({
@@ -22,19 +32,32 @@ export default () =>
 
         let target2 = await db.findOne({ _id: player.data?.location });
         target ||= target2;
+        target.data ||= {};
+        player.data ||= {};
         if (!target) return send(ctx.socket.id, "I don't see that here");
+        if (
+          target._id !== player.data.location &&
+          target.data.location !== player.data.location &&
+          (flags.lvl(player.flags) || 0) < 1
+        )
+          return send(ctx.socket.id, "I don't see that here");
+        if (!canSee(player, target))
+          return send(ctx.socket.id, "I don't see that here");
+        const contents = (
+          await db.find({
+            $and: [{ "data.location": target?._id }, { flags: /connected/i }],
+          })
+        )?.filter((item) => canSee(player, item));
 
-        const contents = await db.find({
-          $and: [{ "data.location": target?._id }, { flags: /connected/i }],
-        });
-
-        const exits = await db.find({
-          $and: [{ "data.location": target?._id }, { flags: /exit/i }],
-        });
+        const exits = (
+          await db.find({
+            $and: [{ "data.location": target?._id }, { flags: /exit/i }],
+          })
+        )?.filter((item) => canSee(player, item));
         let desc =
           center(`%ch%b${displayName(player, target)}%b%cn`, 80, "=") +
           "\n" +
-          (target.data?.description || "You see nothing special.") +
+          (getAttr(target, "description").value || "You see nothing special.") +
           "\n";
 
         if (contents.length) {
@@ -50,9 +73,14 @@ export default () =>
                 ),
                 5
               );
-            const shortdesc = cont.data?.shortdesc
-              ? "%b%b" + cont.data?.shortdesc
-              : "%b%b%ch%cxUse '@shortdesc <desc>' to set this.%cn";
+            const shortdesc = cont.data?.attributes?.find(
+              (attr) => attr.name === "short-desc"
+            )
+              ? "%b%b" +
+                cont.data.attributes
+                  .find((attr) => attr.name === "short-desc")
+                  ?.value.slice(0, 48)
+              : "%b%b%ch%cxUse '&short-desc me=<desc>' to set this.%cn";
             desc += shortdesc.padEnd(48) + "\n";
           }
         }

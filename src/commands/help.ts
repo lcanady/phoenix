@@ -4,6 +4,7 @@ import { send } from "../broadcast";
 import { addCmd, cmds, text } from "../cmds";
 import { db } from "../database";
 import flags from "../flags";
+import parser from "../parser";
 import { center, columns, repeatString } from "../utils";
 
 export default async () => {
@@ -18,7 +19,7 @@ export default async () => {
       join(__dirname, `../../help/${file.name}`),
       "utf8"
     );
-    text.set(`help_${file.name.replace(".md", "")}`, textFile);
+    text.set(`${file.name.replace(".md", "")}`, textFile);
   }
 
   addCmd({
@@ -28,13 +29,26 @@ export default async () => {
     render: async (ctx) => {
       const player = await db.findOne({ _id: ctx.socket.cid });
       const flgs = player?.flags || "";
-      const commands = cmds
-        .filter((cmd) => !cmd.hidden)
-        .filter((cmd) => flags.check(flgs, cmd.flags || ""))
-        .sort((a, b) => (a.name > b.name ? 1 : -1))
-        .map((cmd) =>
-          text.has(`help_${cmd.name}`) ? cmd.name : `%cr${cmd.name}*%cn`
-        );
+      let commands: any = [];
+      text.forEach(
+        (_, key) =>
+          key.match(/^topic_/) && commands.push(key.replace(/^topic_/, ""))
+      );
+
+      commands = [
+        ...commands,
+        ...cmds
+          .filter((cmd) => !cmd.hidden)
+          .filter((cmd) => flags.check(flgs, cmd.flags || ""))
+          .map((cmd) =>
+            text.has(`help_${cmd.name}`) ? cmd.name : `%cr${cmd.name}*%cn`
+          ),
+      ].sort((a, b) =>
+        parser
+          .stripSubs("telnet", a)
+          .localeCompare(parser.stripSubs("telnet", b))
+      );
+
       let output = center(" %chHelp%cn ", 80, "%cr=%cn") + "\n";
       output += columns(commands, 80, 4, " ") + "\n\n";
       output +=
@@ -52,6 +66,8 @@ export default async () => {
       const topic = args[1];
       if (text.has(`help_${topic}`)) {
         send(ctx.socket.id, text.get(`help_${topic}`) || "");
+      } else if (text.has(`topic_${topic}`)) {
+        send(ctx.socket.id, text.get(`topic_${topic}`) || "");
       } else {
         send(ctx.socket.id, `No help available for '${topic}'.`);
       }
