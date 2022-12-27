@@ -189,8 +189,21 @@ export default () => {
       const fromObj = await target(en, from);
       const toObj = await target(en, to);
 
-      if (!fromObj || !toObj) {
-        return send(ctx.socket.id, "You can't link there.");
+      if (
+        fromObj &&
+        toObj &&
+        fromObj.flags.includes("player") &&
+        canEdit(en, fromObj) &&
+        canEdit(en, toObj) &&
+        toObj.flags.includes("room")
+      ) {
+        fromObj.data ||= {};
+        fromObj.data.home = toObj._id;
+        await db.update({ _id: fromObj._id }, fromObj);
+        return send(
+          ctx.socket.id,
+          `You link ${displayName(en, fromObj)} to ${displayName(en, toObj)}.`
+        );
       }
 
       if (
@@ -206,11 +219,11 @@ export default () => {
         await db.update({ _id: fromObj._id }, fromObj);
         return send(
           ctx.socket.id,
-          `You link ${fromObj.name} to ${toObj.name}.`
+          `You link ${displayName(en, fromObj)} to ${displayName(en, toObj)}.`
         );
-      } else {
-        return send(ctx.socket.id, "You can't link there.");
       }
+
+      return send(ctx.socket.id, "You can't link there.");
     },
   });
 };

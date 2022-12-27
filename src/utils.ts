@@ -191,8 +191,9 @@ export const columns = (list: string[], width = 78, cols = 3, fill = " ") => {
 
 export const canEdit = (enactor: DbObj, target: DbObj) => {
   if (
-    (flags.lvl(enactor.flags) || 0) > (flags.lvl(target.flags) || 0) ||
-    enactor._id === target._id
+    ((flags.lvl(enactor.flags) || 0) > (flags.lvl(target.flags) || 0) ||
+      enactor._id === target._id) &&
+    flags.check(enactor.flags || "", target.data?.lock || "")
   ) {
     return true;
   }
@@ -238,11 +239,13 @@ export const idle = (secs: number) => {
   }
 
   switch (true) {
-    case snds < 60 * 60 * 10:
+    case snds < 60 * 10:
       return `%ch%cg${time}%cn`;
-    case snds < 60 * 60 * 15:
+    case snds < 60 * 15:
       return `%ch%cy${time}%cn`;
-    case snds < 60 * 60 * 25:
+    case snds < 60 * 25:
+      return `%ch%cy${time}%cn`;
+    case snds < 60 * 60:
       return `%ch%cr${time}%cn`;
     default:
       return `%ch%cx${time}%cn`;

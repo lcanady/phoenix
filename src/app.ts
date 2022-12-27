@@ -104,6 +104,8 @@ io.on("connection", async (socket: MuSocket) => {
   socket.on("disconnect", async () => {
     if (socket.cid) {
       const en = await player(socket.cid);
+      delete en.data?.lastpage;
+      delete en.data?.lastcmd;
       await set(en, "!connected");
       if (en) send(en.data?.location || "", `${en.name} has disconnected.`);
     }
