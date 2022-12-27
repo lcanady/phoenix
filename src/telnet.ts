@@ -11,6 +11,8 @@ const serv = tcpServer((socket: MuTelnetSocket) => {
   const command = Buffer.from([0xff, 0xfd, 0x21]);
   socket.write(command);
 
+  socket.on("error", (err) => console.log(err));
+
   const io = socketIo("http://localhost:3001");
 
   socket.on("data", (data) => {
