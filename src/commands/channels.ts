@@ -221,4 +221,28 @@ export default () => {
       });
     },
   });
+
+  addCmd({
+    name: "commask",
+    pattern: /^commask\s+(.*)\s*=\s*(.*)/i,
+    flags: "connected",
+    hidden: true,
+    render: async (ctx, args) => {
+      const en = await player(ctx.socket.cid);
+      en.data ||= {};
+      en.data.channels ||= [];
+      const chans = en.data.channels.filter((c) => c.alias === args[1]);
+
+      if (chans.length === 0) {
+        send(ctx.socket.id, `Channel ${args[1]} not found.`);
+        return;
+      }
+
+      chans.forEach(async (c) => {
+        c.mask = args[2];
+        await db.update({ _id: en._id }, en);
+        send(ctx.socket.id, `Channel ${c.channel} mask updated.`);
+      });
+    },
+  });
 };
