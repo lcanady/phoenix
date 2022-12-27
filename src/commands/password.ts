@@ -16,10 +16,9 @@ export default () => {
       const en = await player(ctx.socket.cid);
       const [oldPassword, newPassword] = args.slice(1);
       if (en.data?.password === sha512(oldPassword)) {
-        console.log("oldpass", en.data.password);
         en.data.password = sha512(newPassword);
         await db.update({ _id: en._id }, en);
-        console.log("newpass", (await player(ctx.socket.cid))?.data?.password);
+
         send(ctx.socket.id, "You have changed your password.");
       } else {
         send(ctx.socket.id, "Permission denied.");
