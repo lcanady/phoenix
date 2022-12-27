@@ -132,13 +132,13 @@ export default () => {
     hidden: true,
     render: async (ctx, args) => {
       const chan = await chans.findOne({ name: RegExp(args[1], "i") });
-      if (!flags.check(ctx.socket.flags || "", chan.lock || "")) {
-        send(ctx.socket.id, "Permission denied.");
-        return;
-      }
 
       if (chan) {
         const en = await player(ctx.socket.cid);
+        if (!flags.check(en.flags || "", chan.lock || "")) {
+          send(ctx.socket.id, "Permission denied.");
+          return;
+        }
         en.data ||= {};
         en.data.channels ||= [];
         en.data.channels.push({
