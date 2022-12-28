@@ -414,7 +414,9 @@ export default () => {
       });
       send(
         ctx.socket.id,
-        `%chMAIL:%cn You have %ch${mails.length}%cn new messages.`
+        `%chMAIL:%cn You have %ch${
+          mails.filter((m) => !en.data?.mailread?.includes(m._id!)).length
+        }%cn new messages.`
       );
     },
   });
