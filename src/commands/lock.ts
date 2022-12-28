@@ -10,7 +10,7 @@ export default () => {
     flags: "connected builder+",
     render: async (ctx, args) => {
       const [obj, key] = args.slice(1);
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const tar = await target(en, obj);
 
       if (!tar || !canEdit(en, tar))

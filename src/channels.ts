@@ -6,7 +6,7 @@ import { player } from "./utils";
 
 export const matchChannel = async (ctx: Context) => {
   if (ctx.socket.cid) {
-    const en = await player(ctx.socket.cid);
+    const en = await player(ctx.socket.cid || "");
     const parts = ctx.text.split(" ");
     const trig = parts[0];
     let msg = parts.slice(1).join(" ").trim();

@@ -11,7 +11,7 @@ export interface Context {
 export interface Cmd {
   name: string;
   pattern: RegExp | string;
-  render: (ctx: any, args: string[]) => Promise<void>;
+  render: (ctx: Context, args: string[]) => Promise<void>;
   flags?: string;
   hidden?: boolean;
   category?: string;
@@ -35,6 +35,7 @@ export interface DbObj {
     description?: string;
     password?: string;
     channels?: ChanEntry[];
+    tempMail?: Mail;
   };
 }
 
@@ -54,4 +55,15 @@ export interface ChanEntry {
   mask?: string;
   title?: string;
   active: boolean;
+}
+
+export interface Mail {
+  _id?: string;
+  from: string;
+  to: string[];
+  message: string;
+  subject: string;
+  cc?: string[];
+  bcc?: string[];
+  read: boolean;
 }

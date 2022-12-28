@@ -13,7 +13,7 @@ export default () => {
       // We need to validate the players current password.
       // if it works, we can update the password.
       // if it doesn't work, we need to tell the player that.
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const [oldPassword, newPassword] = args.slice(1);
       if (en.data?.password === sha512(oldPassword)) {
         en.data.password = sha512(newPassword);

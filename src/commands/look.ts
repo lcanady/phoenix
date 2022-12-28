@@ -22,7 +22,7 @@ export default () =>
       const player = await db.findOne({ _id: ctx.socket.cid });
       if (player) {
         args[1] ||= "here";
-        args[1] = args[1].match(/me/i) ? ctx.socket.cid : args[1];
+        args[1] = args[1].match(/me/i) ? ctx.socket.cid || "" : args[1];
         args[1] = args[1].match(/here/i)
           ? ` ${player.data?.location}`
           : args[1];

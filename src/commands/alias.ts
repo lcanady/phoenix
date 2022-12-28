@@ -10,7 +10,7 @@ export default () => {
     flags: "connected",
     render: async (ctx, args) => {
       const [, name, alias] = args;
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid!);
       const tar = await target(en, name);
 
       if (tar) {

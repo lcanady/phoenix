@@ -11,7 +11,7 @@ export default () => {
     flags: "connected admin+",
     hidden: true,
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const channel = await chans.findOne({
         name: RegExp(args[1].split("=")[0], "i"),
       });
@@ -134,7 +134,7 @@ export default () => {
       const chan = await chans.findOne({ name: RegExp(args[1], "i") });
 
       if (chan) {
-        const en = await player(ctx.socket.cid);
+        const en = await player(ctx.socket.cid || "");
         if (!flags.check(en.flags || "", chan.lock || "")) {
           send(ctx.socket.id, "Permission denied.");
           return;
@@ -166,7 +166,7 @@ export default () => {
     flags: "connected",
     hidden: true,
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       en.data ||= {};
       en.data.channels ||= [];
       en.data.channels.forEach(async (c) => {
@@ -188,13 +188,15 @@ export default () => {
     flags: "connected",
     hidden: true,
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       en.data ||= {};
       en.data.channels ||= [];
       let msg = "Your channels:%r";
-      msg += "=======================================================%r";
-      msg += `ALIAS                  CHANNEL                 STATUS%r`;
-      msg += "=======================================================";
+      msg +=
+        "================================================================================%r";
+      msg += `ALIAS         CHANNEL           STATUS        TITLE            MASK      %r`;
+      msg +=
+        "================================================================================";
       en.data.channels.forEach((c) => {
         msg += `%r${c.alias.padEnd(20)}   ${c.channel.padEnd(20)}    ${
           c.active ? "active" : "inactive"
@@ -210,7 +212,7 @@ export default () => {
     flags: "connected",
     hidden: true,
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       en.data ||= {};
       en.data.channels ||= [];
       en.data.channels.forEach(async (c) => {
@@ -228,7 +230,7 @@ export default () => {
     flags: "connected",
     hidden: true,
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       en.data ||= {};
       en.data.channels ||= [];
       const chans = en.data.channels.filter((c) => c.alias === args[1]);

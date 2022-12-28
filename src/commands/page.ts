@@ -10,7 +10,7 @@ export default () => {
     flags: "connected",
     render: async (ctx, args) => {
       const [obj, msg, reply] = args.slice(1);
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const tars = obj?.split(" ") || en.data?.lastpage || [];
       const targets = [];
       for (const tar of tars) {

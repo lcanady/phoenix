@@ -11,7 +11,7 @@ export default () => {
     flags: "connected builder+",
     render: async (ctx, args) => {
       const [, swtch, room, exits] = args;
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const [to, from] = exits.split(",");
 
       // Dig the room.
@@ -64,7 +64,7 @@ export default () => {
 
       // tel them there if needed.
       if (swtch.toLowerCase() == "teleport") {
-        force(ctx.socket.id, `teleport #${roomObj.dbref}`);
+        force(ctx.socket, `teleport #${roomObj.dbref}`);
       }
     },
   });
@@ -75,7 +75,7 @@ export default () => {
     flags: "connected builder+",
     render: async (ctx, args) => {
       const [swtch, name] = args.slice(1);
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const obj = await target(en, name);
 
       if (!obj || !canEdit(en, obj))
@@ -119,7 +119,7 @@ export default () => {
     pattern: /^[@/+]?te[leport]+\s+(.*)\s*=\s*(.*)/i,
     flags: "connected",
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const tar = await target(en, args[2]);
 
       if (!tar) return send(ctx.socket.id, "You can't teleport there.");
@@ -135,11 +135,11 @@ export default () => {
         en.data ||= {};
         const from = en.data.location;
         const to = tar._id;
-        ctx.socket.leave(from);
+        ctx.socket.leave(from || "");
         send(from || "", `${en.name} teleports away.`);
         en.data.location = to;
         send(to || "", `${en.name} teleports in.`);
-        ctx.socket.join(to);
+        ctx.socket.join(to || "");
         await db.update({ _id: en._id }, en);
         send(ctx.socket.id, `You teleport to ${tar.name}.`);
         await force(ctx.socket, `look`);
@@ -155,7 +155,7 @@ export default () => {
     pattern: /^[@/+]?open\s+(.*)/i,
     flags: "connected builder+",
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const [name, room] = args[1].split("=");
       const roomObj = room && (await target(en, room || ""));
 
@@ -183,7 +183,7 @@ export default () => {
     pattern: /^[@/+]?link\s+(.*)\s*=\s*(.*)/i,
     flags: "connected builder+",
     render: async (ctx, args) => {
-      const en = await player(ctx.socket.cid);
+      const en = await player(ctx.socket.cid || "");
       const [from, to] = args.slice(1);
 
       const fromObj = await target(en, from);

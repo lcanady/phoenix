@@ -1,10 +1,10 @@
 
-               'x|`
-             '|xx| `          '|x|
-     `   '    |xx|    `   '    |x|`
-              |xx|             |x|
-     ============|===============|===--
-         ~~~~~|xx|~~~~~~~~~~~~~|x|~~~ ~~  ~   ~
+                       'x|`
+                      '|xx| `          '|x|
+              `   '    |xx|    `   '    |x|`
+                       |xx|             |x|
+              ============|===============|===--
+                  ~~~~~|xx|~~~~~~~~~~~~~|x|~~~ ~~  ~   ~
 
 '||'''|,                  ||`                 ||                               
  ||   ||          ''      ||                  ||                               
@@ -12,7 +12,11 @@
  ||   ||   ||     ||  ||  ||  ||  || ||..||   ||    ||  ||   \\/\//    ||  ||  
 .||...|'  .||.   .||. `|..||. `|..|| `|...    `|..' `|..|'    \/\/    .||  ||. 
                                   ||      
-create  <name> <password>      `..|'      An Anita Blake, Vampire Hunter Game
-connect <name> <password>
-
-'QUIT' to exit
+                               `..|'      
+                                              
+                An Anita Blake, Vampire Hunter Game
+                
+              Use 'connect <name> <password>' to connect
+       Use 'create <name> <password>' to create a new character
+                 
+                          'QUIT' to exit
