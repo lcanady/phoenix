@@ -29,6 +29,7 @@ export default () =>
 
         send(ctx.socket.id, `Welcome to the game, ${args[1]}!`);
         await login(ctx, user);
+        await force(ctx.socket, "@mail/notify");
         await force(ctx.socket, "look");
       } else {
         send(ctx.socket.id, "That name is already in use");
