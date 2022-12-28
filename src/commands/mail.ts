@@ -14,7 +14,7 @@ export default () => {
       const en = await player(ctx.socket.cid || "");
       const tars = [];
       for (const tar of targets.split(",")) {
-        const t = await target(en, tar);
+        const t = await target(en, tar.trim());
         if (t) {
           tars.push(t);
         }
@@ -112,7 +112,7 @@ export default () => {
       const en = await player(ctx.socket.cid || "");
       const tars = [];
       for (const tar of targets.split(",")) {
-        const t = await target(en, tar);
+        const t = await target(en, tar.trim());
         if (t) {
           tars.push(t);
         }
@@ -248,7 +248,7 @@ export default () => {
 
       en.data.tempMail.cc ||= [];
       for (const tar of targets.split(",")) {
-        const t = await target(en, tar);
+        const t = await target(en, tar.trim());
         if (t._id) en.data.tempMail.cc.push(t._id);
       }
 
