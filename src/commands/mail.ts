@@ -34,7 +34,6 @@ export default () => {
           to: ids,
           subject,
           message: "",
-          read: false,
         };
 
         await db.update({ _id: en._id }, en);
@@ -299,7 +298,7 @@ export default () => {
         const bcc = m.bcc
           ? await Promise.all(m.bcc.map((id) => player(id)))
           : "";
-        output += `${m.read ? " " : "U"} ${
+        output += `${en.data?.mailread?.includes(m._id!) ? " " : "U"} ${
           mails.indexOf(m) + 1
         } From: ${from.name.padEnd(15).slice(0, 15)} Subject: ${m.subject
           .padEnd(45)
@@ -340,9 +339,11 @@ export default () => {
       output += m.message + "\n";
       output += "=".repeat(80);
       send(ctx.socket.id, output);
-      if (!m.read) {
-        m.read = true;
-        await mail.update({ _id: m._id }, m);
+      en.data ||= {};
+      en.data.mailread ||= [];
+      if (!en.data.mailread.includes(m._id!)) {
+        en.data.mailread.push(m._id!);
+        await db.update({ _id: en._id }, en);
       }
     },
   });
@@ -360,6 +361,13 @@ export default () => {
       if (num > mails.length || num < 1)
         return send(ctx.socket.id, "%chMAIL:%cn Invalid message number.");
       const m = mails[num - 1];
+      const readers = await db.find({ "data.mailread": { $in: [m._id] } });
+      if (readers.length)
+        return send(
+          ctx.socket.id,
+          "%chMAIL:%cn Message has been read, cannot delete."
+        );
+
       await mail.remove({ _id: m._id });
       send(ctx.socket.id, "%chMAIL:%cn Message deleted.");
     },
@@ -385,7 +393,6 @@ export default () => {
         to: [from._id!],
         subject: `Re: ${m.subject}`,
         message: "",
-        read: false,
         from: en._id!,
       };
 
@@ -434,7 +441,6 @@ export default () => {
         to: [from._id!],
         subject: `Re: ${m.subject}`,
         message: "",
-        read: false,
         from: en._id!,
       };
 
@@ -469,7 +475,6 @@ export default () => {
           to: [to?._id],
           subject: `Fwd: ${m.subject}`,
           message: `---------- Forwarded message ----------\nFrom: ${m.from}\nSubject: ${m.subject}\n\n${m.message}\n----------- End Forward Message -----------\n`,
-          read: false,
           from: en._id!,
         };
       }

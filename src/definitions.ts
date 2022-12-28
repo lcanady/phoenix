@@ -36,6 +36,7 @@ export interface DbObj {
     password?: string;
     channels?: ChanEntry[];
     tempMail?: Mail;
+    mailread?: string[];
   };
 }
 
@@ -65,5 +66,4 @@ export interface Mail {
   subject: string;
   cc?: string[];
   bcc?: string[];
-  read: boolean;
 }
