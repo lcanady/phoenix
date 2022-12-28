@@ -410,8 +410,16 @@ export default () => {
       const en = await player(ctx.socket.cid || "");
       if (!en) return;
       const mails = await mail.find({
-        $and: [{ to: { $in: [en._id] } }, { read: false }],
+        $or: [
+          { to: { $in: [en._id] } },
+          { cc: { $in: [en._id] } },
+          { bcc: { $in: [en._id] } },
+        ],
       });
+
+      en.data ||= {};
+      en.data.mailread ||= [];
+
       send(
         ctx.socket.id,
         `%chMAIL:%cn You have %ch${
