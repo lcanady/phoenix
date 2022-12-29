@@ -281,6 +281,41 @@ export default () => {
   });
 
   addCmd({
+    name: "@mail/read2",
+    pattern: /^[@/+]?mail\s+(.*)/i,
+    flags: "connected",
+    hidden: true,
+    render: async (ctx, args) => {
+      const en = await player(ctx.socket.cid || "");
+      if (!en) return;
+      const mails = await mail.find({ to: { $in: [en._id] } });
+      const num = parseInt(args[1]);
+      if (num > mails.length || num < 1)
+        return send(ctx.socket.id, "%chMAIL:%cn Invalid message number.");
+      const m = mails[num - 1];
+      const from = await player(m.from);
+      const to = await Promise.all(m.to.map((id) => player(id)));
+      const cc = m.cc ? await Promise.all(m.cc.map((id) => player(id))) : "";
+      const bcc = m.bcc ? await Promise.all(m.bcc.map((id) => player(id))) : "";
+      let output = center(`%b%chMAIL: ${num}%cn%b`, 80, "=") + "\n";
+      output += `From: ${from.name.padEnd(15).slice(0, 15)} Subject: ${m.subject
+        .padEnd(45)
+        .slice(0, 45)}\n`;
+      output += `To: ${to.map((t) => t.name).join(", ")}\n`;
+      if (cc) output += `CC: ${cc.map((t) => t.name).join(", ")}\n`;
+      if (bcc) output += `BCC: ${bcc.map((t) => t.name).join(", ")}\n`;
+      output += "-".repeat(80) + "\n";
+      output += m.message + "\n";
+      output += "=".repeat(80);
+      send(ctx.socket.id, output);
+      en.data ||= {};
+      en.data.mailread ||= [];
+      en.data.mailread.push(m._id!);
+      await db.update({ _id: en._id }, en);
+    },
+  });
+
+  addCmd({
     name: "@mail",
     pattern: /^[@/+]?mail$/i,
     flags: "connected",
