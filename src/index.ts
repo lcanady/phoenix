@@ -22,16 +22,18 @@ server.listen(3001, async () => {
     room = await db.insert({
       name: "Limbo",
       dbref: 0,
+
       flags: "room",
     });
 
     // Create a wizard if there are no players
     if (!users.length && room) {
       console.log("No players found, creating one!");
-      await db.insert({
+      const wizard = await db.insert({
         dbref: await id(),
         name: "wizard",
         flags: "player wizard",
+
         data: {
           password: sha512("potrzebie"),
           location: room?._id,
@@ -47,16 +49,15 @@ server.listen(3001, async () => {
     console.log("No channels found, creating some!");
     await chans.insert({
       name: "Public",
-      header: "[Public]",
+      header: "%ch%cc[Public]%cn",
       alias: "pub",
     });
 
     await chans.insert({
       name: "Admin",
-      header: "[Admin]",
+      header: "%ch%cy[Admin]%cn",
       alias: "ad",
       lock: "admin+",
-      hidden: true,
     });
   }
 });

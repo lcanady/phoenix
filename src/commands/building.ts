@@ -12,7 +12,7 @@ export default () => {
     render: async (ctx, args) => {
       const [, swtch, room, exits] = args;
       const en = await player(ctx.socket.cid || "");
-      const [to, from] = exits.split(",");
+      const [to, from] = exits?.split(",");
 
       // Dig the room.
       let obj: DbObj = {
@@ -63,7 +63,7 @@ export default () => {
       }
 
       // tel them there if needed.
-      if (swtch.toLowerCase() == "teleport") {
+      if (swtch?.toLowerCase() == "teleport") {
         force(ctx.socket, `teleport #${roomObj.dbref}`);
       }
     },

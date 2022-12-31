@@ -29,13 +29,14 @@ export const login = async (ctx: Context, player: DbObj) => {
   ctx.socket.request.session.save();
 
   const channels = await chans.find({});
-  channels.forEach(async (channel) => {
-    if (channel.alias && flags.check(player.flags, channel.lock || "")) {
+
+  for (const channel of channels) {
+    if (channel.alias && flags.check(player.flags || "", channel.lock || "")) {
       const chan = player.data?.channels?.filter(
         (ch) => ch.channel === channel.name
       );
 
-      if (!chan) {
+      if (!chan?.length) {
         player.data ||= {};
         player.data.channels ||= [];
 
@@ -53,7 +54,7 @@ export const login = async (ctx: Context, player: DbObj) => {
         );
       }
     }
-  });
+  }
 
   player.data?.channels?.forEach(
     (channel) => channel.active && ctx.socket.join(channel.channel)

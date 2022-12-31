@@ -61,6 +61,15 @@ export default class Database<T> {
       });
     });
   }
+
+  public async count(query: any): Promise<number> {
+    return new Promise((resolve, reject) => {
+      this.db?.count(query, (err: Error | null, count: number) => {
+        if (err) reject(err);
+        resolve(count);
+      });
+    });
+  }
 }
 
 export const db = new Database<DbObj>("./data/data.db");

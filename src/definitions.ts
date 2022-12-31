@@ -26,6 +26,7 @@ export interface DbObj {
   name: string;
   dbref: number;
   flags: string;
+
   data?: {
     [key: string]: any;
     lastCommand?: number;

@@ -1,4 +1,3 @@
-import { readdir } from "fs/promises";
 import { send } from "./broadcast";
 import { matchChannel } from "./channels";
 import { db } from "./database";
@@ -48,25 +47,34 @@ export const matchCmd = async (ctx: Context) => {
     player.data.lastCommand = Date.now();
     await db.update({ _id: player._id }, player);
   }
-
-  matchChannel(ctx).then((matched) => {
-    if (!matched)
-      matchExits(ctx).then((matched) => {
-        if (!matched) {
-          for (const cmd of cmds) {
-            const matches = ctx?.text?.replace("\r\n", "").match(cmd?.pattern);
-            if (matches) {
-              if (flags.check(player?.flags || "", cmd?.flags || "")) {
-                ctx.data.player = player;
-                return cmd?.render(ctx, matches);
+  try {
+    matchChannel(ctx).then((matched) => {
+      if (!matched)
+        matchExits(ctx).then((matched) => {
+          if (!matched) {
+            for (const cmd of cmds) {
+              const matches = ctx?.text
+                ?.replace("\r\n", "")
+                .match(cmd?.pattern);
+              if (matches) {
+                if (flags.check(player?.flags || "", cmd?.flags || "")) {
+                  ctx.data.player = player;
+                  return cmd?.render(ctx, matches);
+                }
               }
             }
+            if (player)
+              return send(ctx.socket.id, "Huh? (Type 'help' for help.)");
           }
-          if (player)
-            return send(ctx.socket.id, "Huh? (Type 'help' for help.)");
-        }
-      });
-  });
+        });
+    });
+  } catch (error) {
+    send(
+      ctx.socket.id,
+      "Uh oh! Something went wrong!  Hand this to your nearest coder!\n\n" +
+        JSON.stringify(error, null, 2)
+    );
+  }
 };
 
 export const force = async (
