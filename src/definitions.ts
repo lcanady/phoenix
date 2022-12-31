@@ -67,4 +67,5 @@ export interface Mail {
   subject: string;
   cc?: string[];
   bcc?: string[];
+  date: number;
 }

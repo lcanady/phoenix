@@ -34,6 +34,7 @@ export default () => {
           to: ids,
           subject,
           message: "",
+          date: Date.now(),
         };
 
         await db.update({ _id: en._id }, en);
@@ -125,7 +126,7 @@ export default () => {
           subject,
           message,
           read: false,
-          time: Date.now(),
+          date: Date.now(),
         };
 
         await mail.insert(ml);
@@ -288,7 +289,9 @@ export default () => {
     render: async (ctx, args) => {
       const en = await player(ctx.socket.cid || "");
       if (!en) return;
-      const mails = await mail.find({ to: { $in: [en._id] } });
+      const mails = (await mail.find({ to: { $in: [en._id] } })).sort(
+        (a, b) => a.date - b.date
+      );
       const num = parseInt(args[1]);
       if (num > mails.length || num < 1)
         return send(ctx.socket.id, "%chMAIL:%cn Invalid message number.");
@@ -324,7 +327,9 @@ export default () => {
       const targets = args[1];
       const en = await player(ctx.socket.cid || "");
       if (!en) return;
-      const mails = await mail.find({ to: { $in: [en._id] } });
+      const mails = (await mail.find({ to: { $in: [en._id] } })).sort(
+        (a, b) => a.date - b.date
+      );
       let output = center(`%b%chMAIL: ${mails.length}%cn%b`, 80, "=") + "\n";
       for (const m of mails) {
         const from = await player(m.from);
@@ -429,6 +434,7 @@ export default () => {
         subject: `Re: ${m.subject}`,
         message: "",
         from: en._id!,
+        date: Date.now(),
       };
 
       await db.update({ _id: en._id }, en);
@@ -487,6 +493,7 @@ export default () => {
         subject: `Re: ${m.subject}`,
         message: "",
         from: en._id!,
+        date: Date.now(),
       };
 
       if (to) en.data.tempMail.to.push(...to.map((p) => p._id!));
@@ -521,6 +528,7 @@ export default () => {
           subject: `Fwd: ${m.subject}`,
           message: `---------- Forwarded message ----------\nFrom: ${m.from}\nSubject: ${m.subject}\n\n${m.message}\n----------- End Forward Message -----------\n`,
           from: en._id!,
+          date: Date.now(),
         };
       }
 
