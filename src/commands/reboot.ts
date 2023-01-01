@@ -3,6 +3,7 @@ import { io } from "../app";
 import { broadcast } from "../broadcast";
 import { addCmd, cmds } from "../cmds";
 import { db } from "../database";
+import { stateEmitter } from "../emitter";
 import { plugins } from "../utils";
 
 export default () =>

@@ -3,6 +3,7 @@ import { send } from "./broadcast";
 import { force } from "./cmds";
 import { chans, db } from "./database";
 import { Context, DbObj } from "./definitions";
+import { stateEmitter } from "./emitter";
 import flags from "./flags";
 import parser from "./parser";
 

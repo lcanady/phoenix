@@ -31,6 +31,7 @@ export default () =>
         send(ctx.socket.id, `Welcome back to the server, ${user.name}!`);
         await login(ctx, user);
         await force(ctx.socket, "@mail/notify");
+        await force(ctx.socket, "@myjobs");
         await force(ctx.socket, "look");
       } else {
         send(ctx.socket.id, "Invalid username or password");

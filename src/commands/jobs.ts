@@ -2,8 +2,9 @@ import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import Database, { db, mail } from "../database";
 import { DbObj } from "../definitions";
+import { stateEmitter } from "../emitter";
 import flags from "../flags";
-import { center, player } from "../utils";
+import { center, id, player } from "../utils";
 
 interface Job {
   _id?: string;
@@ -448,6 +449,208 @@ export default () => {
         message: `Job ${job.num} has been marked cancelled by ${en.name}.\n\nReason: ${args[2]}`,
         date: Date.now(),
       });
+    },
+  });
+
+  addCmd({
+    name: "@myjobs",
+    pattern: /^[@/+]?myjobs/i,
+    flags: "connected",
+    render: async (ctx) => {
+      const en = await player(ctx.socket.cid || "");
+      const jobs = await jobDB.find({
+        $and: [
+          {
+            $or: [
+              { createdBy: ctx.socket.cid || "" },
+              { assignedTo: { $in: [ctx.socket.cid] } },
+            ],
+          },
+          { completedAt: { $exists: false } },
+          { canceledAt: { $exists: false } },
+          { closedAt: { $exists: false } },
+        ],
+      });
+
+      if (!jobs.length)
+        return send(ctx.socket.id, "%ch%ccJOBS:%cn You have no jobs.");
+
+      let output = center("%ch%bMYJOBS%cn%b", 80, "%ch%cb=%cn") + "\n";
+      output += "%ch *  JOB#".padEnd(10);
+      output += " TYPE".padEnd(10);
+      output += "TITLE".padEnd(35);
+      output += "DUE ON".padEnd(10);
+      output += "ASSIGNED TO%cn".padEnd(15) + "\n";
+      output += "%ch%cb-%cn".repeat(80) + "\n";
+
+      jobs.forEach((job) => {
+        if (!job.canceledAt && !job.completedAt && !job.closedAt) {
+          output += en.data?.jobs.includes(job._id) ? "   " : "%ch%cr * %cn";
+
+          const timestamp = Date.now() - (job.dueDate || 0);
+
+          switch (true) {
+            case timestamp < 0:
+              output += "%ch%cr";
+              break;
+            case timestamp < 60 * 60 * 24 * 7:
+              output += "%ch%cy";
+              break;
+            case timestamp < 60 * 60 * 24 * 14:
+              output += "%ch%cg";
+              break;
+            default:
+              output += "%ch%cg";
+          }
+
+          output += `${job.num}`.padStart(5).slice(0, 5);
+          output += ` ${job.type.toUpperCase()}`.padEnd(10).slice(0, 10);
+          output += `${job.title}`.padEnd(35).slice(0, 35);
+          output += `${
+            job.dueDate
+              ? new Date(job.dueDate).toLocaleDateString("en-US", {
+                  timeStyle: "short",
+                })
+              : "--------"
+          }`
+            .padEnd(10)
+            .slice(0, 10);
+          output +=
+            `${job.assignedTo || "Unassigned"}`.padEnd(15).slice(0, 15) +
+            "%cn\n";
+        }
+      });
+      output += "%ch%cb=%cn".repeat(80);
+
+      send(ctx.socket.id, output);
+    },
+  });
+
+  addCmd({
+    name: "@myjob/view",
+    pattern: /^[@/+]?(?:myjob\/view|myjob)\s+(.*)/i,
+    flags: "connected",
+    render: async (ctx, args) => {
+      const jobNum = parseInt(args[1]);
+      const job = await jobDB.findOne({ num: jobNum });
+
+      if (!job) return send(ctx.socket.id, "Invalid job number.");
+
+      const en = await player(ctx.socket.cid || "");
+      en.data ||= {};
+      en.data.jobs ||= [];
+
+      if (!en.data.jobs.includes(job._id)) {
+        en.data.jobs.push(job._id);
+        await db.update({ _id: en._id }, en);
+      }
+
+      let output =
+        center(`%b%chMYJOB View ${job.num}%b`, 80, "%ch%cb=%cn") + "\n";
+      output +=
+        "%ch%cc" +
+        "Type:".padStart(10) +
+        `%cn ${job.type.toUpperCase()}`.padEnd(28).slice(0, 28) +
+        "%ch%cc" +
+        "Due On:".padStart(10) +
+        `%cn ${
+          job.dueDate
+            ? new Date(job.dueDate).toLocaleDateString("en-US", {
+                timeStyle: "short",
+              })
+            : "--------"
+        }`.slice(0, 28) +
+        "\n";
+
+      const assigned = await Promise.all(
+        job.assignedTo?.map(async (id) => (await player(id)).name) || ""
+      );
+
+      output +=
+        "%ch%cc" +
+        "Title:".padStart(10) +
+        `%cn ${job.title}`.padEnd(28).slice(0, 28) +
+        "%ch%cc" +
+        "Assigned:".padStart(10) +
+        `%cn ${assigned.length ? assigned.join(", ") : "Unassigned"}`
+          .padEnd(28)
+          .slice(0, 28) +
+        "\n";
+
+      output +=
+        "%ch%cc" +
+        "Status:".padStart(10) +
+        `%cn ${job.status}`.padEnd(28) +
+        "%ch%cc" +
+        "Created:".padStart(10) +
+        `%cn ${new Date(job.createdAt).toLocaleDateString("en-US")}`.padEnd(
+          28
+        ) +
+        "\n";
+      job.comments ||= [];
+      for (const comment of job.comments) {
+        if (!comment.private || flags.check(en.flags || " ", "builder+")) {
+          output += "%ch%cb-%cn".repeat(80) + "\n";
+          output += `[%ch%cc${job.comments.indexOf(comment) + 1}%cn] ${
+            comment.private ? "%ch%cy[Staff Only]%cn " : ""
+          }%ch${(await player(comment.author)).name}%cn added on %ch${new Date(
+            comment.createdAt
+          ).toLocaleString("en-US")}%cn\n`;
+          output += `${comment.text}\n`;
+        }
+      }
+
+      output += "%ch%cb=%cn".repeat(80);
+
+      send(ctx.socket.id, output);
+    },
+  });
+
+  addCmd({
+    name: "@myjob/add",
+    pattern: /^[@/+]?(?:myjob\/add|myjob\/comment)\s+(.*)\s*=\s*(.*)/i,
+    flags: "connected",
+    render: async (ctx, args) => {
+      const jobNum = parseInt(args[1]);
+      const job = await jobDB.findOne({ num: jobNum });
+
+      if (!job) return send(ctx.socket.id, "Invalid job number.");
+
+      const en = await player(ctx.socket.cid || "");
+      en.data ||= {};
+      en.data.jobs ||= [];
+
+      if (
+        job.assignedTo?.includes(en?._id || "") ||
+        flags.check(en.flags || " ", "builder+")
+      )
+        return send(ctx.socket.id || "", "You are not assigned to this job.");
+
+      if (!en.data.jobs.includes(job._id)) {
+        en.data.jobs.push(job._id);
+        await db.update({ _id: en._id }, en);
+      }
+
+      job.comments ||= [];
+      job.comments.push({
+        author: en?._id || "",
+        createdAt: Date.now(),
+        text: args[2],
+        private: false,
+      });
+
+      await jobDB.update({ _id: job._id }, job);
+
+      send(ctx.socket.id, "Comment added.");
+
+      const assigned = await Promise.all(
+        job.assignedTo?.map(async (id) => (await player(id)).name) || ""
+      );
+
+      send(
+        [...assigned, job.createdBy],
+        `%ch%cy[MYJOB] %cn%ch${en.name}%cn added a comment to job %ch${job.num}%cn: %ch${args[2]}%cn`
+      );
     },
   });
 };
