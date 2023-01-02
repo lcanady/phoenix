@@ -23,11 +23,7 @@ export default () => {
       // the page message.
 
       const targetIds = targets
-        .filter((t) =>
-          t._id && t._id !== en._id && t.flags.includes("connected")
-            ? true
-            : false
-        )
+        .filter((t) => (t._id && t.flags.includes("connected") ? true : false))
 
         .filter(Boolean)
         .map((t) => t._id!);
@@ -83,7 +79,8 @@ export default () => {
       // now we can send the page message to the targets
       const targts = Array.from(new Set(targetIds));
       send(targts, tempmsg);
-      send(ctx.socket.id, sendermsg);
+      if (!targets.filter((ob) => ob._id === en._id).length)
+        send(ctx.socket.id, sendermsg);
       en.data ||= {};
       en.data.lastpage = targts;
       await db.update({ _id: en._id }, en);
