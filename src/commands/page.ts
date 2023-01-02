@@ -68,7 +68,8 @@ export default () => {
       }
 
       if (en.data?.lastpage && reply) {
-        send(ctx.socket.id, sendermsg);
+        if (!targets.filter((ob) => ob._id === en._id).length)
+          send(ctx.socket.id, sendermsg);
         return send(en.data.lastpage, tempmsg);
       }
 
