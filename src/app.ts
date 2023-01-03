@@ -2,15 +2,13 @@ import express, { Express, Request, Response } from "express";
 import { createServer, IncomingMessage } from "http";
 import { Server } from "socket.io";
 import { matchCmd, text } from "./cmds";
-
 import "./telnet";
 import { send } from "./broadcast";
 import { MuSocket } from "./definitions";
-import { readFile } from "fs/promises";
 import session from "express-session";
 import fileStorage from "session-file-store";
-import { db } from "./database";
 import { player, set } from "./utils";
+import authorization from "./routes/authorization";
 
 declare module "http" {
   interface IncomingMessage {
@@ -32,12 +30,16 @@ const sessionMiddleware = session({
 });
 
 app.use(sessionMiddleware);
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 const server = createServer(app);
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
 });
+
+app.use("/auth", authorization);
 
 const io = new Server(server, {
   allowRequest: (req, callback) => {
@@ -85,10 +87,11 @@ io.on("connection", async (socket: MuSocket) => {
     }
 
     if (session.cid || cid) {
-      const player = await db.findOne({ _id: session.cid });
+      const en = await player(session.cid);
       socket.cid ||= session.cid || cid;
       socket.join(session.cid);
-      socket.join(player?.data?.location || "");
+      socket.join(en?.data?.location || "");
+      set(en, "connected");
     } else {
       const connect = text.get("connect") || "Welcome to the game!";
       send(socket.id, connect);
@@ -101,7 +104,9 @@ io.on("connection", async (socket: MuSocket) => {
     matchCmd({ socket, text: msg.msg, data: msg.data, scope: {} });
   });
 
-  socket.on("disconnect", async () => {
+  socket.on("disconnect", async (reason) => {
+    if (reason.endsWith("transport close") || reason.endsWith("ping timeout"))
+      return;
     if (socket.cid) {
       const en = await player(socket.cid);
       delete en.data?.lastpage;

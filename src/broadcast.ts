@@ -1,6 +1,8 @@
 import parser from "./parser";
 import { io } from "./app";
-import { Parser } from "@ursamu/parser";
+import Convert from "ansi-to-html";
+
+const convert = new Convert();
 
 export const send = (
   target: string[] | string,
@@ -9,13 +11,19 @@ export const send = (
 ) => {
   io.to(target).emit("chat message", {
     msg: parser.substitute("telnet", msg),
-    data,
+    data: {
+      ...data,
+      ...{ html: convert.toHtml(parser.substitute("telnet", msg)) },
+    },
   });
 };
 
 export const broadcast = (msg: string, data: any = {}) => {
   io.emit("chat message", {
     msg: parser.substitute("telnet", msg),
-    data,
+    data: {
+      ...data,
+      ...{ html: convert.toHtml(parser.substitute("telnet", msg)) },
+    },
   });
 };

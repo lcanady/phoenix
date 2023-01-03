@@ -209,7 +209,7 @@ export default () => {
         before,
         after
       );
-      console.log(before, after);
+
       await db.update({ _id: en._id }, en);
       send(ctx.socket.id, "%chMAIL:%cn Message updated.");
     },

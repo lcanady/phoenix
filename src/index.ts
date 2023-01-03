@@ -3,10 +3,11 @@ import { join } from "path";
 import { server } from "./app";
 import { chans, db } from "./database";
 import { id, plugins, set } from "./utils";
-
-server.listen(3001, async () => {
-  console.log("Server is running on port 3000");
+import config from "config";
+server.listen(config.get("server.port"), async () => {
+  console.log(`Server started on port ${config.get("server.port")}`);
   plugins(join(__dirname, "commands"));
+
   const players = await db.find({ flags: /connected/ });
   const users = await db.find({});
 

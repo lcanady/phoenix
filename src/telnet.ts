@@ -1,5 +1,5 @@
 import socketIo from "socket.io-client";
-import parser from "./parser";
+import config from "config";
 import { Context } from "./definitions";
 import { createServer as tcpServer, Socket } from "net";
 
@@ -13,7 +13,7 @@ const serv = tcpServer((socket: MuTelnetSocket) => {
 
   socket.on("error", (err) => console.log(err));
 
-  const io = socketIo("http://localhost:3001");
+  const io = socketIo(`http://localhost:${config.get("server.port")}`);
 
   socket.on("data", (data) => {
     io.emit("chat message", {
@@ -53,4 +53,6 @@ const serv = tcpServer((socket: MuTelnetSocket) => {
 
 serv.on("error", (err) => console.log(err));
 
-serv.listen(4202, () => console.log("TCP Server listening on port 4201"));
+serv.listen(config.get("server.telnetPort"), () =>
+  console.log(`TCP Server listening on port ${config.get("server.telnetPort")}`)
+);

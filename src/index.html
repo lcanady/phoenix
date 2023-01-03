@@ -71,17 +71,10 @@
       <input id="input" autocomplete="off" /><button>Send</button>
     </form>
 
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/ansi-to-html/0.7.2/ansi_to_html.min.js"
-      integrity="sha512-skPMohH9Gz8PHimHOtOOvH8i8fYtB28cQPRfA4pqeUXT9Fbug528NxDASYi2O/URnOlK4VFrm2EcWB6y53fG5w=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
       var socket = io();
-      let convert = new Convert();
 
       var messages = document.getElementById("messages");
       var form = document.getElementById("form");
@@ -97,7 +90,7 @@
 
       socket.on("chat message", function (ctx) {
         var item = document.createElement("li");
-        item.textContent = convert.toHtml(ctx.msg);
+        item.innerHTML = ctx.data.html;
         messages.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });

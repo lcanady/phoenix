@@ -1,0 +1,6 @@
+{
+  "server": {
+    "telnetPort": 4201,
+    "port": 4202
+  }
+}

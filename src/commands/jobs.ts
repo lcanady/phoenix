@@ -298,7 +298,6 @@ export default () => {
       const jobNum = parseInt(args[2]);
       const pri = args[1]?.match(/p[rivate]+/i) ? true : false;
       const comment = args[3];
-      console.log(jobNum, comment, pri);
       const job = await jobDB.findOne({ num: jobNum });
       const en = await player(ctx.socket.cid || "");
 
