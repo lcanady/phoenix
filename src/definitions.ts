@@ -69,3 +69,18 @@ export interface Mail {
   bcc?: string[];
   date: number;
 }
+
+export interface Wiki {
+  _id?: string;
+  slug: string;
+  title: string;
+  body: string;
+  tags?: string[];
+  lock?: string;
+  featured?: Boolean;
+  category: string;
+  createdAt: number;
+  updatedAt: number;
+  CreatedBy: string;
+  UpdatedBy: string;
+}

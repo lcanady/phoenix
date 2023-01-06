@@ -1,4 +1,4 @@
-import { sign, verify } from "jsonwebtoken";
+import { decode, sign, verify } from "jsonwebtoken";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -6,9 +6,9 @@ dotenv.config();
 export const signToken = (_id: string) =>
   new Promise<any>((resolve, reject) =>
     sign(
-      { _id },
+      _id,
       process.env.JWT_SECRET || "youshouldreallychangethis",
-      { expiresIn: "1d" },
+      {},
       (err: any, token: any) => {
         if (err) reject(err);
         resolve(token);

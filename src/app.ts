@@ -9,6 +9,11 @@ import session from "express-session";
 import fileStorage from "session-file-store";
 import { player, set } from "./utils";
 import authorization from "./routes/authorization";
+import dbRoute from "./routes/db";
+import wiki from "./routes/wiki";
+import { resolve } from "path";
+import auth from "./middleware/auth";
+import cors from "cors";
 
 declare module "http" {
   interface IncomingMessage {
@@ -29,17 +34,17 @@ const sessionMiddleware = session({
   saveUninitialized: true,
 });
 
+app.use(express.static(resolve(__dirname, "../public")));
+app.use(cors({ origin: "*", credentials: true }));
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const server = createServer(app);
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
-});
-
+app.use("/db", auth, dbRoute);
 app.use("/auth", authorization);
+app.use("/wiki", wiki);
 
 const io = new Server(server, {
   allowRequest: (req, callback) => {

@@ -1,5 +1,5 @@
 import Datastore from "nedb";
-import { Channel, DbObj, Mail } from "./definitions";
+import { Channel, DbObj, Mail, Wiki } from "./definitions";
 
 export default class Database<T> {
   db: Datastore<T> | undefined;
@@ -75,3 +75,4 @@ export default class Database<T> {
 export const db = new Database<DbObj>("./data/data.db");
 export const chans = new Database<Channel>("./data/channels.db");
 export const mail = new Database<Mail>("./data/mail.db");
+export const WikiDB = new Database<Wiki>("./data/wiki.db");
