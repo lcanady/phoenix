@@ -1,0 +1,127 @@
+<script lang="ts">
+  import { marked } from "marked";
+
+  export let longImage = "";
+  export let image = "";
+  export let title = "";
+  export let body = "";
+
+  $: text = marked.parse(body);
+</script>
+
+{#if longImage}
+  <div
+    class="image"
+    style={`background: url(${longImage});background-size: cover; background-position: center;`}
+  />
+{/if}
+<div class="article" style={`margin-left: ${longImage ? "750px" : "350px"}`}>
+  <div class="words">
+    <div
+      class="image_top_mobile"
+      style={` background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url(${image});background-size: cover; background-position: center;`}
+    />
+
+    {#if !longImage && image}
+      <div
+        class="image_top"
+        style={`background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url(${image});background-size: cover; background-position: center;`}
+      />
+    {/if}
+    <h1 style={`margin-top: 100px`}>{title}</h1>
+    <p class="subtitle">Last Update by YOU @ {new Date().toLocaleString()}</p>
+    {@html text}
+  </div>
+</div>
+
+<style lang="scss">
+  .image {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 400px;
+    width: 300px;
+    height: 100%;
+    min-height: 100vh;
+    filter: saturate(0);
+  }
+
+  .image_top {
+    width: 100%;
+    height: 500px;
+    filter: saturate(0);
+  }
+
+  .image_top_mobile {
+    display: none;
+    width: 100%;
+    height: 500px;
+    filter: saturate(0);
+  }
+
+  .article {
+    display: flex;
+    flex-direction: column;
+    margin-left: 750px;
+    z-index: 1000;
+    position: relative;
+    width: 100%;
+  }
+  .words {
+    position: absolute;
+    top: 0;
+    width: 100%;
+
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  .words::-webkit-scrollbar {
+    display: none;
+  }
+
+  .subtitle {
+    margin-top: -5px;
+    font-size: 16px;
+    font-weight: lighter;
+    opacity: 0.7;
+  }
+
+  h1 {
+    font-size: 32px;
+    font-weight: normal;
+    font-family: "Punktype", monospace;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
+
+  :global(p) {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  @media screen and (max-width: 1350px) {
+    .image {
+      display: none;
+    }
+
+    .image_top_mobile {
+      display: block;
+    }
+
+    h1 {
+      margin-top: 40px;
+    }
+
+    .article {
+      margin-left: 350px !important;
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    .article {
+      margin-left: 0 !important;
+    }
+  }
+</style>

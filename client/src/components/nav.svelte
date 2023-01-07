@@ -60,9 +60,10 @@
   }
 
   .logo {
+    margin-top: 30px;
     display: flex;
+    align-items: center;
     flex-direction: column;
-    align-items: flex-start;
   }
 
   .title {
@@ -98,7 +99,7 @@
     }
   }
 
-  @media screen and (max-width: 900px) {
+  @media screen and (max-width: 1024px) {
     .links {
       display: none;
     }

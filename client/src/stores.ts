@@ -31,3 +31,4 @@ export const password = writable("");
 export const token = writable("");
 export const loginError = writable("");
 export const menuItems = writable<MenuItem[]>(defaultLinks);
+export const preview = writable(false);

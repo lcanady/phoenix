@@ -77,7 +77,10 @@ export interface Wiki {
   body: string;
   tags?: string[];
   lock?: string;
+  shortImg?: string;
+  longImg?: string;
   featured?: Boolean;
+  default?: Boolean;
   category: string;
   createdAt: number;
   updatedAt: number;

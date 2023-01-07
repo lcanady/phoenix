@@ -14,6 +14,7 @@ import wiki from "./routes/wiki";
 import { resolve } from "path";
 import auth from "./middleware/auth";
 import cors from "cors";
+import multer from "multer";
 
 declare module "http" {
   interface IncomingMessage {
@@ -39,6 +40,31 @@ app.use(cors({ origin: "*", credentials: true }));
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+const diskStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, "public/uploads");
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(
+      null,
+      file.fieldname +
+        "-" +
+        uniqueSuffix +
+        "." +
+        file.originalname.split(".")[1]
+    );
+  },
+});
+
+const upload = multer({ storage: diskStorage });
+
+app.post("/upload", auth, upload.single("img"), (req, res, next) => {
+  const file = req.file;
+  if (!file) next(new Error("No file uploaded!"));
+  res.status(200).json({ file: file?.filename });
+});
 
 const server = createServer(app);
 
