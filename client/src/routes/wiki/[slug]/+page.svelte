@@ -60,10 +60,10 @@
 </script>
 
 <Article
-  title={data.article.title}
-  image={data.article.shortImg &&
-    `http://localhost:4202/uploads/${data.article.shortImg}`}
+  title={data.article?.title}
+  image={data.article?.shortImg &&
+    `http://localhost:4202/uploads/${data.article?.shortImg}`}
   longImage={data.article.longImg &&
-    `http://localhost:4202/uploads/${data.article.longImg}`}
-  body={data.article.body}
+    `http://localhost:4202/uploads/${data.article?.longImg}`}
+  body={data.article?.body}
 />
