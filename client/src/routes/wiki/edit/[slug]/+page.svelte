@@ -1,11 +1,14 @@
 <script lang="ts">
-  import { menuItems, preview, user } from "../../../stores";
-  import Button from "../../../components/Button.svelte";
+  import { menuItems, preview, user } from "../../../../stores";
+  import Button from "../../../../components/Button.svelte";
   import { goto } from "$app/navigation";
-  import Article from "../../../components/Article.svelte";
+  import Article from "../../../../components/Article.svelte";
   import axios from "axios";
   import slug from "slug";
+  import type { PageData } from "./$types";
   import { onMount } from "svelte";
+
+  export let data: PageData;
 
   $: if ($preview) {
     $menuItems = [
@@ -55,15 +58,19 @@
     ];
   }
 
-  let title: string;
-  let category: string;
-  let lock: string;
-  let body: string;
-  let featured: boolean, defaultArticle: boolean;
+  let title: string = data.article.title;
+  let category: string = data.article.category;
+  let lock: string = data.article.lock;
+  let body: string = data.article.body;
+  let landing: boolean = data.article.landing;
+  let featured: boolean = data.article.featured,
+    defaultArticle: boolean = data.article.default;
   let uploader: HTMLInputElement;
   let longUploader: HTMLInputElement;
   let files: FileList | null;
   let longFiles: FileList | null;
+  let short = data.article.shortImg;
+  let long = data.article.longImg;
 
   const uploadFile = async (file: File) => {
     const formData = new FormData();
@@ -86,17 +93,18 @@
 
     try {
       const res = await axios.post(
-        "http://localhost:4202/wiki/",
+        "http://localhost:4202/wiki/" + data.article.slug,
         {
           title,
           slug: slug(title),
           category,
           lock,
           body,
+          landing,
           featured,
           default: defaultArticle,
-          shortImg: filenames[0] || "",
-          longImg: filenames[1] || "",
+          shortImg: filenames[0] || short,
+          longImg: filenames[1] || long,
         },
         {
           headers: {
@@ -104,16 +112,14 @@
           },
         }
       );
-      goto(`/wiki/${res.data.slug}`);
+      goto(`/wiki/${data.article.slug}`);
     } catch (error) {
       console.log(error);
     }
   };
 
   onMount(() => {
-    console.log($user);
     if (!$user?.isAdmin) {
-      console.log("NEWP!!!");
       goto("/");
     }
   });
@@ -121,20 +127,30 @@
 
 {#if $preview}
   <Article
-    longImage={longFiles ? URL.createObjectURL(longFiles[0]) : ""}
+    longImage={longFiles
+      ? URL.createObjectURL(longFiles[0])
+      : long
+      ? "http://localhost:4202/uploads/" + long
+      : ""}
     {title}
     {body}
-    image={files ? URL.createObjectURL(files[0]) : ""}
+    image={files
+      ? URL.createObjectURL(files[0])
+      : short
+      ? "http://localhost:4202/uploads/" + short
+      : ""}
   />
 {:else}
   <div class="wrapper">
     <div class="left">
-      {#if longFiles}
+      {#if longFiles || long}
         <div
           class="long-image"
-          style={`background: url(${URL.createObjectURL(
-            longFiles[0]
-          )}); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
+          style={`background: url(${
+            longFiles
+              ? URL.createObjectURL(longFiles[0])
+              : `http://localhost:4202/uploads/` + long
+          }); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
           on:click={() => longUploader.click()}
           on:keydown={(e) => {
             if (e.key === "Enter") {
@@ -146,6 +162,7 @@
             on:click={(e) => {
               longUploader.value = "";
               longFiles = null;
+              long = "";
               e.stopPropagation();
             }}>Clear</button
           >
@@ -179,12 +196,14 @@
         style="display:none;"
       />
 
-      {#if files}
+      {#if files || short}
         <div
           class="feature"
-          style={`background: url(${URL.createObjectURL(
-            files[0]
-          )}); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
+          style={`background: url(${
+            files
+              ? URL.createObjectURL(files[0])
+              : `http://localhost:4202/uploads/` + short
+          }); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
           on:click={() => uploader.click()}
           on:keydown={(e) => {
             if (e.key === "Enter") {
@@ -196,6 +215,7 @@
             on:click={(e) => {
               uploader.value = "";
               files = null;
+              short = "";
               e.stopPropagation();
             }}>Clear</button
           >
@@ -217,19 +237,28 @@
         <input placeholder="Category" bind:value={category} />
         <input placeholder="lock" bind:value={lock} />
       </div>
-      <div class="checkbox">
-        <label for="featured">Featured</label><input
-          name="featured"
-          type="checkbox"
-          bind:checked={featured}
-        />
-      </div>
-      <div class="checkbox">
-        <label for="default">Default</label><input
-          name="default"
-          type="checkbox"
-          bind:checked={defaultArticle}
-        />
+      <div class="checkboxes">
+        <div class="checkbox">
+          <label for="featured">Featured</label><input
+            name="featured"
+            type="checkbox"
+            bind:checked={featured}
+          />
+        </div>
+        <div class="checkbox">
+          <label for="default">Default</label><input
+            name="default"
+            type="checkbox"
+            bind:checked={defaultArticle}
+          />
+        </div>
+        <div class="checkbox">
+          <label for="landing">Landing Page</label><input
+            name="landing"
+            type="checkbox"
+            bind:checked={landing}
+          />
+        </div>
       </div>
       <textarea class="content" bind:value={body} placeholder="Article Body" />
       <div class="inputs">
@@ -254,6 +283,11 @@
     width: 100%;
     display: flex;
 
+    gap: 20px;
+  }
+
+  .checkboxes {
+    display: flex;
     gap: 20px;
   }
 

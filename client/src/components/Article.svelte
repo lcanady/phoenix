@@ -5,6 +5,8 @@
   export let image = "";
   export let title = "";
   export let body = "";
+  export let updateBy: string = "UNKNOWN";
+  export let updateDate: string = new Date().toLocaleString();
 
   $: text = marked.parse(body);
 </script>
@@ -17,10 +19,12 @@
 {/if}
 <div class="article" style={`margin-left: ${longImage ? "750px" : "350px"}`}>
   <div class="words">
-    <div
-      class="image_top_mobile"
-      style={` background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url(${image});background-size: cover; background-position: center;`}
-    />
+    {#if image && longImage}
+      <div
+        class="image_top_mobile"
+        style={` background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url(${image});background-size: cover; background-position: center;`}
+      />
+    {/if}
 
     {#if !longImage && image}
       <div
@@ -29,8 +33,10 @@
       />
     {/if}
     <h1 style={`margin-top: 100px`}>{title}</h1>
-    <p class="subtitle">Last Update by YOU @ {new Date().toLocaleString()}</p>
+    <p class="subtitle">Last Update by {updateBy} @ {updateDate}</p>
     {@html text}
+
+    <slot />
   </div>
 </div>
 
@@ -89,6 +95,14 @@
 
   h1 {
     font-size: 32px;
+    font-weight: normal;
+    font-family: "Punktype", monospace;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
+
+  :global(h2) {
+    font-size: 24px;
     font-weight: normal;
     font-family: "Punktype", monospace;
     letter-spacing: 5px;

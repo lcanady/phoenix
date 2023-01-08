@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from "./Button.svelte";
-  import { username, password, token, loginError } from "../stores";
+  import { username, password, token, user, loginError } from "../stores";
   import axios from "axios";
 
   const handleLogin = async () => {
@@ -10,24 +10,32 @@
         username: $username,
         password: $password,
       });
+      $username = "";
+      $password = "";
       const data = await res.data;
       token.set(data.token);
       localStorage.setItem("token", data.token);
+      $user = data.user;
     } catch (error: any) {
       $loginError = "Invalid username or password";
     }
   };
 </script>
 
-{#if $token}
-  <div class="buttons">
-    <Button label="PLAY" alt fullwidth />
-  </div>
-{:else}
+{#if !$token}
   <h3>Login or Register</h3>
   <div class="inputs">
     <input placeholder="Username" bind:value={$username} />
-    <input placeholder="Password" type="password" bind:value={$password} />
+    <input
+      placeholder="Password"
+      type="password"
+      bind:value={$password}
+      on:keypress={(e) => {
+        if (e.key === "Enter") {
+          handleLogin();
+        }
+      }}
+    />
   </div>
   <div class="buttons">
     <Button label="LOGIN" alt fullwidth onClick={handleLogin} />

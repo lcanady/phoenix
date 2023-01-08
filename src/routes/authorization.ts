@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { sha512 } from "js-sha512";
 import { db } from "../database";
-import { signToken } from "../jwt";
+import flags from "../flags";
+import { signToken, verifyToken } from "../jwt";
 import { dbObj, player } from "../utils";
 
 const router = Router();
@@ -14,7 +15,32 @@ router.post("/", async (req, res) => {
     return res.status(401).json({ error: "Invalid Username or Password" });
   const token = await signToken(user._id!);
 
-  res.status(200).json({ token });
+  res.status(200).json({
+    token,
+    user: {
+      id: user?._id,
+      dbref: `#${user.dbref}`,
+      username: user?.name,
+      flags: user?.flags,
+      isAdmin: flags.check(user?.flags || "", "builder+"),
+    },
+  });
+});
+
+router.get("/user", async (req, res, next) => {
+  const token = req.headers.authorization?.split(" ")[1] || "";
+  const _id = await verifyToken(token);
+  const user = await db.findOne({ _id });
+  if (!user) return next(new Error("Invalid Token"));
+  res.status(200).json({
+    user: {
+      id: user?._id,
+      dbref: `#${user.dbref}`,
+      username: user?.name,
+      flags: user?.flags,
+      isAdmin: flags.check(user?.flags || "", "builder+"),
+    },
+  });
 });
 
 router.post("/register", async (req, res) => {
@@ -26,7 +52,16 @@ router.post("/register", async (req, res) => {
   });
 
   const token = await signToken(obj?._id || "");
-  res.status(200).json({ token });
+  res.status(200).json({
+    token,
+    user: {
+      id: obj?._id,
+      dbref: `#${obj.dbref}`,
+      username: obj?.name,
+      flags: obj?.flags,
+      isAdmin: flags.check(obj?.flags || "", "builder+"),
+    },
+  });
 });
 
 export default router;

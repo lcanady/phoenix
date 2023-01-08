@@ -81,6 +81,7 @@ export interface Wiki {
   longImg?: string;
   featured?: Boolean;
   default?: Boolean;
+  landing?: Boolean;
   category: string;
   createdAt: number;
   updatedAt: number;

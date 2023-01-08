@@ -17,7 +17,6 @@ router.post("/", auth, async (req, res, next) => {
   if (!flags.check(req.body.user.flags || "", "admin+"))
     return next(new Error("You do not have permission to do this"));
 
-  console.log(exits);
   if (exits) return next(new Error("Article already exists"));
 
   const article: Wiki = {
@@ -30,6 +29,7 @@ router.post("/", auth, async (req, res, next) => {
     longImg: req.body.longImg || "",
     default: req.body.default || false,
     featured: req.body.featured || false,
+    landing: req.body.landing || false,
     createdAt: Date.now(),
     category: req.body.category,
     updatedAt: Date.now(),
@@ -41,11 +41,25 @@ router.post("/", auth, async (req, res, next) => {
     return next(new Error("Missing required fields"));
   try {
     if (article.default) {
-      const articles = await WikiDB.find({ default: true });
+      const articles = await WikiDB.find({
+        default: true,
+      });
       for (const article of articles) {
         await WikiDB.update(
           { _id: article._id },
           { ...article, default: false }
+        );
+      }
+    }
+
+    if (article.landing) {
+      const articles = await WikiDB.find({
+        landing: true,
+      });
+      for (const article of articles) {
+        await WikiDB.update(
+          { _id: article._id },
+          { ...article, landing: false }
         );
       }
     }
@@ -64,6 +78,11 @@ router.get("/", async (req, res) => {
 
 router.get("/featured", async (req, res) => {
   const wiki = await WikiDB.find({ featured: true });
+  res.status(200).json(wiki);
+});
+
+router.get("/landing", async (req, res) => {
+  const wiki = await WikiDB.find({ landing: true });
   res.status(200).json(wiki);
 });
 
@@ -91,6 +110,30 @@ router.post("/:slug", auth, async (req, res, next) => {
     return next(new Error("You do not have permission to do this"));
 
   try {
+    if (req.body.default) {
+      const articles = await WikiDB.find({
+        default: true,
+      });
+      for (const article of articles) {
+        await WikiDB.update(
+          { _id: article._id },
+          { ...article, default: false }
+        );
+      }
+    }
+
+    if (req.body.landing) {
+      const articles = await WikiDB.find({
+        landing: true,
+      });
+      for (const article of articles) {
+        await WikiDB.update(
+          { _id: article._id },
+          { ...article, landing: false }
+        );
+      }
+    }
+
     const wiki = await WikiDB.update(
       { _id: exits._id },
       { ...exits, ...req.body }
