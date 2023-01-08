@@ -36,7 +36,9 @@ const sessionMiddleware = session({
 });
 
 app.use(express.static(resolve(__dirname, "../public")));
-app.use(cors({ origin: "*", credentials: true }));
+app.use(
+  cors({ origin: ["http://bridgetown.io:3000", "*"], credentials: true })
+);
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
