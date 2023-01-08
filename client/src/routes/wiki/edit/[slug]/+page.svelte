@@ -58,19 +58,19 @@
     ];
   }
 
-  let title: string = data.article.title;
-  let category: string = data.article.category;
-  let lock: string = data.article.lock;
-  let body: string = data.article.body;
-  let landing: boolean = data.article.landing;
-  let featured: boolean = data.article.featured,
-    defaultArticle: boolean = data.article.default;
+  let title: string = data.article?.title;
+  let category: string = data.article?.category;
+  let lock: string = data.article?.lock;
+  let body: string = data.article?.body;
+  let landing: boolean = data.article?.landing;
+  let featured: boolean = data.article?.featured,
+    defaultArticle: boolean = data.article?.default;
   let uploader: HTMLInputElement;
   let longUploader: HTMLInputElement;
   let files: FileList | null;
   let longFiles: FileList | null;
-  let short = data.article.shortImg;
-  let long = data.article.longImg;
+  let short = data.article?.shortImg;
+  let long = data.article?.longImg;
 
   const uploadFile = async (file: File) => {
     const formData = new FormData();

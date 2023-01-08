@@ -68,7 +68,7 @@
     `http://localhost:4202/uploads/${data.article[0]?.shortImg}`}
   longImage={data.article[0].longImg &&
     `http://localhost:4202/uploads/${data.article[0]?.longImg}`}
-  body={data.article[0].body}
+  body={data.article[0]?.body}
 >
   <Login />
 </Article>
