@@ -66,7 +66,7 @@
   title={data.article[0]?.title}
   image={data.article[0]?.shortImg &&
     `http://localhost:4202/uploads/${data.article[0]?.shortImg}`}
-  longImage={data.article[0].longImg &&
+  longImage={data.article[0]?.longImg &&
     `http://localhost:4202/uploads/${data.article[0]?.longImg}`}
   body={data.article[0]?.body}
 >
