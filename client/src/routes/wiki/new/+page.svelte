@@ -116,20 +116,25 @@
   };
 
   onMount(async () => {
-    const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
-      headers: {
-        authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    });
-
-    $user = res.data.user;
-    console.log($user);
-    if (!$user?.isAdmin) {
-      console.log("NEWP!!!");
-      goto("/");
-    }
+    try {
+      const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+        headers: {
+          authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      $user = res.data.user;
+      console.log("user", res.data.user)
+      if (!$user.length || !$user?.isAdmin) {
+        console.log("NEWP!!!");
+        goto("/");
+      }
+        
+      } catch (error) {
+      console.log(error);       
+      }
   });
-</script>
+  </script>
 
 {#if $preview}
   <Article
@@ -226,10 +231,13 @@
         />
       {/if}
 
-      <input placeholder="Article Title" bind:value={title} />
-      <div class="inputs">
-        <input placeholder="Category" bind:value={category} />
-        <input placeholder="lock" bind:value={lock} />
+      <div class="inputs_stacked">
+        <input placeholder="Article Title" bind:value={title} />
+        <div class="inputs">
+
+          <input placeholder="Category" bind:value={category} />
+          <input placeholder="lock" bind:value={lock} />
+        </div>
       </div>
       <div class="checkboxes">
         <div class="checkbox">
@@ -274,10 +282,15 @@
 <style lang="scss">
   .wrapper {
     margin-left: 300px;
+    max-height: 85vh;
     width: 100%;
     display: flex;
-
     gap: 20px;
+    overflow-y: auto;
+  }
+
+  .wrapper::-webkit-scrollbar {
+    display: none;
   }
 
   .right {
@@ -289,9 +302,10 @@
   }
 
   .feature {
-    margin-top: 100px;
+    
     margin-bottom: 20px;
     height: 400px;
+    flex-shrink: 0;
     width: 100%;
     background: url("/Image.png"), #101010;
     border: 1px solid white;
@@ -300,9 +314,8 @@
   }
 
   .long-image {
-    margin-top: 100px;
     margin-bottom: 20px;
-    height: 90%;
+    height:100vh;
     width: 300px;
     background: url("/Image.png"), #101010;
     border: 1px solid white;
@@ -324,6 +337,17 @@
     }
   }
 
+
+  .inputs_stacked {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+
+    input {
+      flex-grow: 1;
+    }
+  }
+
   input {
     background: rgba(255, 255, 255, 0.1);
     border: none;
@@ -333,6 +357,7 @@
     font-size: 16px;
     padding: 0 10px;
     margin-bottom: 5px;
+    height: 48px;
     border-bottom: white 1px solid;
     outline: none;
   }
@@ -361,6 +386,7 @@
     border: 1px solid white;
     overflow-y: auto;
     outline: none;
+    flex-shrink: 0;
   }
 
   @media screen and (max-width: 1290px) {
@@ -394,6 +420,12 @@
     .right {
       margin-left: 0;
       margin-bottom: 20px;
+    }
+
+    .feature {
+      margin-top: 0;
+      margin-bottom: 0;
+      height: 500px;
     }
   }
 </style>
