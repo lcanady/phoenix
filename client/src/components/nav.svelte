@@ -1,26 +1,26 @@
 <script>
   import { goto } from "$app/navigation";
+  import { env } from "$env/dynamic/public";
   import axios from "axios";
   import { onMount } from "svelte";
   import { menuItems, menuToggle, token, user } from "../stores";
   import Button from "./Button.svelte";
+  import SideMenu from "./SideMenu.svelte";
 
-  onMount(() => {
+  onMount(async () => {
     const tkn = localStorage.getItem("token");
     if (tkn) {
       token.set(tkn);
-    }
-  });
 
-  $: if ($token) {
-    axios
-      .get("http://localhost:4202/auth/user", {
+      const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
         headers: {
           Authorization: "Bearer " + $token,
         },
-      })
-      .then((res) => user.set(res.data.user));
-  }
+      });
+
+      user.set(res.data.user);
+    }
+  });
 
   let visible = false;
 </script>
@@ -31,6 +31,74 @@
     <p class="subtitle">an Anita Blake MU*</p>
   </div>
 
+  <div class="mobile_menu_content" class:hidden={!$menuToggle}>
+    <div class="mobile_menu_context_inner">
+      <div class="mobile_menu_background" />
+      <div class="links_mobile">
+        <h2>Links</h2>
+        <a
+          href="/wiki"
+          on:click={(e) => {
+            e.preventDefault();
+            goto("/wiki");
+            menuToggle.set(false);
+          }}>WIKI</a
+        >
+
+        {#if $user}
+          <a
+            href="/profile"
+            on:click={(e) => {
+              e.preventDefault();
+              console.log($user);
+              goto("/profile/" + $user.id);
+              menuToggle.set(false);
+            }}>PROFILE</a
+          >
+          <Button label="LOG OUT" alt mobile onClick={() => goto("/")} />
+        {:else}
+          <Button label="LOGIN" alt mobile onClick={() => goto("/")} />
+        {/if}
+
+        <div class="mobile_menu_extra">
+          <ul>
+            {#each $menuItems as item}
+              {#if item.title}
+                <li
+                  class:padding={item.padding}
+                  style={"background: transparent;"}
+                >
+                  <h2>{item.name}</h2>
+                </li>
+              {:else if item.onClick}
+                <li class:padding={item.padding}>
+                  <Button
+                    label={item.name}
+                    alt={item.alt}
+                    onClick={() => {
+                      menuToggle.set(false);
+                      if (item.onClick) item.onClick();
+                    }}
+                  />
+                </li>
+              {:else}
+                <li class:padding={item.padding}>
+                  <a
+                    href={item.path || "#"}
+                    on:click={(e) => {
+                      e.preventDefault();
+                      goto(item.path || "#");
+                      menuToggle.set(false);
+                    }}>{item.name}</a
+                  >
+                </li>
+              {/if}
+            {/each}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
   <div class="mobile_menu">
     <button on:click={() => menuToggle.set(!$menuToggle)}>
       <img
@@ -39,7 +107,6 @@
       />
     </button>
   </div>
-
   <div class="links">
     <a href="/wiki">WIKI</a>
 
@@ -86,7 +153,7 @@
 <style lang="scss">
   nav {
     display: flex;
-    height: 80px;
+    height: 105px;
     align-items: center;
     justify-content: space-between;
     z-index: 70000;
@@ -172,10 +239,85 @@
     display: none;
 
     button {
-      background: none;
+      background: black;
       border: none;
       cursor: pointer;
     }
+  }
+
+  .mobile_menu_content {
+    top: 0;
+    left: 0;
+    z-index: -1;
+    position: absolute;
+    background-color: #000;
+    width: 100%;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .mobile_menu_context_inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100vh;
+    width: 100%;
+  }
+
+  .mobile_menu_background {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    left: 0;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%),
+      url("/bg_image.png");
+    width: 100vw;
+    height: 400px;
+    background-size: cover;
+    background-position: bottom;
+  }
+
+  .links_mobile {
+    display: flex;
+    flex-direction: column;
+    margin-top: 200px;
+    gap: 20px;
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: right;
+    overflow: none;
+
+    a {
+      letter-spacing: normal;
+      font-size: 20px;
+      font-weight: lighter;
+    }
+
+    li {
+      padding: 10px 0;
+    }
+
+    li:nth-child(even) {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+  }
+  h2 {
+    font-size: 24px;
+    color: white;
+    font-family: "Punktype", monospace;
+    letter-spacing: 5px;
+    margin: 0;
+    margin-top: 20px;
+    border-bottom: 1px solid white;
+  }
+
+  img {
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
   }
 
   @media screen and (max-width: 1024px) {
@@ -183,8 +325,18 @@
       display: none;
     }
 
+    .logo {
+      background: black;
+    }
+
     .mobile_menu {
       display: block;
+    }
+  }
+
+  @media screen and (min-width: 1025px) {
+    .mobile_menu_content {
+      display: none;
     }
   }
 </style>

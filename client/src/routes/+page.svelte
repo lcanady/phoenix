@@ -5,28 +5,29 @@
   import Article from "../components/Article.svelte";
   import { menuItems, token, user } from "../stores";
   import type { PageData } from "./$types";
+  import { env } from "$env/dynamic/public";
 
   export let data: PageData;
 
   onMount(() => {
-    if ($token)
-      axios
-        .get("http://localhost:4202/auth/user", {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token"),
-          },
-        })
-        .then((res) => user.set(res.data.user));
+    axios
+      .get(`${env.PUBLIC_BASE_URL}auth/user`, {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      .then((res) => user.set(res.data.user));
   });
 
-  $menuItems = [
-    {
-      name: "Featured Articles",
-      title: true,
-    },
-  ];
-
-  $menuItems = [...$menuItems, ...data.featured];
+  if (data.featured.length > 0) {
+    $menuItems = [
+      {
+        name: "Featured Articles",
+        title: true,
+      },
+    ];
+    $menuItems = [...$menuItems, ...data.featured];
+  }
 
   $: if ($user) {
     $menuItems = [];
@@ -46,13 +47,15 @@
       { name: "Create", path: "/wiki/new/" },
     ];
 
-    $menuItems = [
-      {
-        name: "Featured Articles",
-        title: true,
-      },
-      ...data.featured,
-    ];
+    if (data.featured.length > 0) {
+      $menuItems = [
+        {
+          name: "Featured Articles",
+          title: true,
+        },
+        ...data.featured,
+      ];
+    }
 
     if ($user.isAdmin) {
       $menuItems = [...$menuItems, ...staff];
@@ -65,10 +68,12 @@
 <Article
   title={data.article[0]?.title}
   image={data.article[0]?.shortImg &&
-    `http://localhost:4202/uploads/${data.article[0]?.shortImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article[0]?.shortImg}`}
   longImage={data.article[0]?.longImg &&
-    `http://localhost:4202/uploads/${data.article[0]?.longImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article[0]?.longImg}`}
   body={data.article[0]?.body}
+  updatedAt={new Date(data.article[0]?.updatedAt).toLocaleString()}
+  updatedBy={data.article[0]?.updatedBy}
 >
   <Login />
 </Article>

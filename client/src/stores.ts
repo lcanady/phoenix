@@ -9,21 +9,7 @@ export interface MenuItem {
   onClick?: () => void;
 }
 
-export const defaultLinks = [
-  { name: "Featured Articles", title: true },
-  { name: "Link", path: "#" },
-  { name: "Link Two", path: "#" },
-  { name: "Link Three", path: "#" },
-  {
-    name: "Link Four",
-    onClick: () => {
-      console.log("Clicked");
-    },
-    alt: true,
-  },
-  { name: "Staff", title: true },
-  { name: "Link Four", path: "#" },
-];
+export const defaultLinks = [];
 
 export const menuToggle = writable(false);
 export const username = writable("");

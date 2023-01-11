@@ -5,8 +5,8 @@
   export let image = "";
   export let title = "";
   export let body = "";
-  export let updateBy: string = "UNKNOWN";
-  export let updateDate: string = new Date().toLocaleString();
+  export let updatedBy: string = "";
+  export let updatedAt: string = "";
 
   $: text = marked.parse(body);
 </script>
@@ -33,7 +33,9 @@
       />
     {/if}
     <h1 style={`margin-top: 100px`}>{title}</h1>
-    <p class="subtitle">Last Update by {updateBy} @ {updateDate}</p>
+    {#if updatedBy}
+      <p class="subtitle">Last Update by {updatedBy} @ {updatedAt}</p>
+    {/if}
     {@html text}
 
     <slot />
@@ -56,6 +58,7 @@
     width: 100%;
     height: 500px;
     filter: saturate(0);
+    margin-bottom: -50px;
   }
 
   .image_top_mobile {
@@ -63,6 +66,7 @@
     width: 100%;
     height: 500px;
     filter: saturate(0);
+    margin-bottom: -50px;
   }
 
   .article {
@@ -77,9 +81,10 @@
     position: absolute;
     top: 0;
     width: 100%;
-
-    max-height: 90vh;
+    max-height: 100vh;
+    max-height: -webkit-fill-available;
     overflow-y: auto;
+    padding-bottom: 60px;
   }
 
   .words::-webkit-scrollbar {
@@ -88,7 +93,7 @@
 
   .subtitle {
     margin-top: -5px;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: lighter;
     opacity: 0.7;
   }
@@ -120,16 +125,15 @@
       display: none;
     }
 
+    .article {
+      margin-left: 300px !important;
+    }
     .image_top_mobile {
       display: block;
     }
 
     h1 {
       margin-top: 40px;
-    }
-
-    .article {
-      margin-left: 350px !important;
     }
   }
 

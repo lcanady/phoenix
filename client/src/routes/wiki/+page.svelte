@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { env } from "$env/dynamic/public";
   import axios from "axios";
   import { onMount } from "svelte";
   import Article from "../../components/Article.svelte";
@@ -14,7 +15,7 @@
 
   onMount(() =>
     axios
-      .get("http://localhost:4202/auth/user", {
+      .get(`${env.PUBLIC_BASE_URL}auth/user`, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },
@@ -65,9 +66,11 @@
 
 <Article
   image={data.article[0]?.shortImg &&
-    `http://localhost:4202/uploads/${data.article[0]?.shortImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article[0]?.shortImg}`}
   longImage={data.article[0]?.longImg &&
-    `http://localhost:4202/uploads/${data.article[0]?.longImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article[0]?.longImg}`}
   title={data.article[0]?.title}
   body={data.article[0]?.body}
+  updatedBy={data.article[0]?.updatedBy}
+  updatedAt={new Date(data.article[0]?.updatedAt).toLocaleString()}
 />

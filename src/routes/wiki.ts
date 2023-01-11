@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { WikiDB } from "../database";
+import { db, WikiDB } from "../database";
 import { Wiki } from "../definitions";
 import flags from "../flags";
 import auth from "../middleware/auth";
@@ -33,8 +33,8 @@ router.post("/", auth, async (req, res, next) => {
     createdAt: Date.now(),
     category: req.body.category,
     updatedAt: Date.now(),
-    CreatedBy: req.body.user._id,
-    UpdatedBy: req.body.user._id,
+    createdBy: req.body.user._id,
+    updatedBy: req.body.user._id,
   };
 
   if (!article.title || !article.slug || !article.body || !article.category)
@@ -72,17 +72,30 @@ router.post("/", auth, async (req, res, next) => {
 });
 
 router.get("/", async (req, res) => {
-  const wiki = await WikiDB.find({ default: true });
+  let wiki = await WikiDB.find({ default: true });
+  wiki = await Promise.all(
+    wiki.map(async (article) => {
+      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      return article;
+    })
+  );
   res.status(200).json(wiki);
 });
 
 router.get("/featured", async (req, res) => {
   const wiki = await WikiDB.find({ featured: true });
+
   res.status(200).json(wiki);
 });
 
 router.get("/landing", async (req, res) => {
-  const wiki = await WikiDB.find({ landing: true });
+  let wiki = await WikiDB.find({ landing: true });
+  wiki = await Promise.all(
+    wiki.map(async (article) => {
+      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      return article;
+    })
+  );
   res.status(200).json(wiki);
 });
 
@@ -94,6 +107,9 @@ router.get("/:slug", async (req, res) => {
       { title: new RegExp(req.params.slug, "i") },
     ],
   });
+
+  wiki.updatedBy = (await db.findOne({ _id: wiki.updatedBy })).name;
+
   res.status(200).json(wiki);
 });
 

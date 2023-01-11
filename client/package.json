@@ -14,6 +14,7 @@
 		"@sveltejs/kit": "^1.0.0",
 		"@types/editorjs__header": "^2.6.0",
 		"@types/marked": "^4.0.8",
+		"@types/nanoid": "^3.0.0",
 		"svelte": "^3.54.0",
 		"svelte-check": "^2.9.2",
 		"svelte-preprocess-markdown": "^2.7.3",
@@ -29,6 +30,7 @@
 		"@types/slug": "^5.0.3",
 		"axios": "^1.2.2",
 		"marked": "^4.2.5",
+		"nanoid": "^4.0.0",
 		"sass": "^1.57.1",
 		"slug": "^8.2.2",
 		"svelte-editorjs": "^0.1.0"

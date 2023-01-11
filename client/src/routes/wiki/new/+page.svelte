@@ -6,6 +6,8 @@
   import axios from "axios";
   import slug from "slug";
   import { onMount } from "svelte";
+  import { env } from "$env/dynamic/public";
+  import { nanoid } from "nanoid";
 
   $: if ($preview) {
     $menuItems = [
@@ -59,7 +61,7 @@
   let category: string;
   let lock: string;
   let body: string;
-  let featured: boolean, defaultArticle: boolean;
+  let featured: boolean, defaultArticle: boolean, landing: boolean;
   let uploader: HTMLInputElement;
   let longUploader: HTMLInputElement;
   let files: FileList | null;
@@ -68,7 +70,7 @@
   const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append("img", file);
-    const res = await axios.post("http://localhost:4202/upload", formData, {
+    const res = await axios.post(`${env.PUBLIC_BASE_URL}upload`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -86,17 +88,20 @@
 
     try {
       const res = await axios.post(
-        "http://localhost:4202/wiki/",
+        `${env.PUBLIC_BASE_URL}wiki/`,
         {
           title,
-          slug: slug(title),
-          category,
+          slug: slug(title) + "-" + nanoid(),
+          category: category || "general",
           lock,
           body,
+          landing,
           featured,
           default: defaultArticle,
           shortImg: filenames[0] || "",
           longImg: filenames[1] || "",
+          updatedBy: $user._id,
+          updatedAt: new Date(),
         },
         {
           headers: {
@@ -110,7 +115,14 @@
     }
   };
 
-  onMount(() => {
+  onMount(async () => {
+    const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+      headers: {
+        authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
+    });
+
+    $user = res.data.user;
     console.log($user);
     if (!$user?.isAdmin) {
       console.log("NEWP!!!");
@@ -125,6 +137,8 @@
     {title}
     {body}
     image={files ? URL.createObjectURL(files[0]) : ""}
+    updatedAt={new Date().toLocaleString()}
+    updatedBy={$user.username}
   />
 {:else}
   <div class="wrapper">
@@ -217,19 +231,28 @@
         <input placeholder="Category" bind:value={category} />
         <input placeholder="lock" bind:value={lock} />
       </div>
-      <div class="checkbox">
-        <label for="featured">Featured</label><input
-          name="featured"
-          type="checkbox"
-          bind:checked={featured}
-        />
-      </div>
-      <div class="checkbox">
-        <label for="default">Default</label><input
-          name="default"
-          type="checkbox"
-          bind:checked={defaultArticle}
-        />
+      <div class="checkboxes">
+        <div class="checkbox">
+          <label for="featured">Featured</label><input
+            name="featured"
+            type="checkbox"
+            bind:checked={featured}
+          />
+        </div>
+        <div class="checkbox">
+          <label for="default">Default</label><input
+            name="default"
+            type="checkbox"
+            bind:checked={defaultArticle}
+          />
+        </div>
+        <div class="checkbox">
+          <label for="landing">Landing Page</label><input
+            name="landing"
+            type="checkbox"
+            bind:checked={landing}
+          />
+        </div>
       </div>
       <textarea class="content" bind:value={body} placeholder="Article Body" />
       <div class="inputs">
@@ -285,6 +308,11 @@
     border: 1px solid white;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  .checkboxes {
+    display: flex;
+    gap: 20px;
   }
 
   .inputs {

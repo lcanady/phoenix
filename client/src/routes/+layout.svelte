@@ -23,30 +23,40 @@
 
   :global(body) {
     background: black;
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
+  }
+
+  :global(html) {
+    height: webkit-fill-available;
+    overflow: hidden;
   }
 
   .wrapper {
     display: flex;
     position: relative;
     flex-direction: column;
-    height: 100%;
+    min-height: 100vh;
     width: 100vw;
     background: black;
     padding: 0;
     margin: 0;
     align-items: center;
+
+    /* mobile viewport bug fix */
+    min-height: -webkit-fill-available;
   }
 
   .container {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    max-width: 1460px;
+    height: 100vh;
+    max-width: 1700px;
     width: 100%;
     position: relative;
     background: black;
     padding: 0 100px;
-    margin: 0;
+    margin: 0 80px;
   }
 
   .background {
@@ -54,7 +64,8 @@
     z-index: 1;
     top: 0;
     left: 0;
-    background: url("/bg_image.png");
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%),
+      url("/bg_image.png");
     width: 100vw;
     height: 400px;
     background-size: cover;
@@ -65,7 +76,7 @@
     display: flex;
     top: 0;
     left: 400px;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     z-index: 6000;
     color: white;

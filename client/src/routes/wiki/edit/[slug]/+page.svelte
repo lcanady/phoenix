@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { menuItems, preview, user } from "../../../../stores";
+  import { menuItems, preview, token, user } from "../../../../stores";
   import Button from "../../../../components/Button.svelte";
   import { goto } from "$app/navigation";
   import Article from "../../../../components/Article.svelte";
@@ -7,8 +7,24 @@
   import slug from "slug";
   import type { PageData } from "./$types";
   import { onMount } from "svelte";
-
+  import { env } from "$env/dynamic/public";
+  import { nanoid } from "nanoid";
   export let data: PageData;
+
+  onMount(async () => {
+    const tkn = localStorage.getItem("token");
+    if (tkn) {
+      token.set(tkn);
+
+      const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+        headers: {
+          Authorization: "Bearer " + $token,
+        },
+      });
+
+      user.set(res.data.user);
+    }
+  });
 
   $: if ($preview) {
     $menuItems = [
@@ -75,7 +91,7 @@
   const uploadFile = async (file: File) => {
     const formData = new FormData();
     formData.append("img", file);
-    const res = await axios.post("http://localhost:4202/upload", formData, {
+    const res = await axios.post(`${env.PUBLIC_BASE_URL}upload`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -93,10 +109,10 @@
 
     try {
       const res = await axios.post(
-        "http://localhost:4202/wiki/" + data.article.slug,
+        `${env.PUBLIC_BASE_URL}wiki/${data.article.slug}`,
         {
           title,
-          slug: slug(title),
+          slug: data.article.slug || slug(title) + "-" + nanoid(),
           category,
           lock,
           body,
@@ -105,6 +121,8 @@
           default: defaultArticle,
           shortImg: filenames[0] || short,
           longImg: filenames[1] || long,
+          updatedAt: Date.now(),
+          updatedBy: $user._id,
         },
         {
           headers: {
@@ -130,15 +148,17 @@
     longImage={longFiles
       ? URL.createObjectURL(longFiles[0])
       : long
-      ? "http://localhost:4202/uploads/" + long
+      ? env.PUBLIC_BASE_URL + "uploads/" + long
       : ""}
     {title}
     {body}
     image={files
       ? URL.createObjectURL(files[0])
       : short
-      ? "http://localhost:4202/uploads/" + short
+      ? env.PUBLIC_BASE_URL + "uploads/" + short
       : ""}
+    updatedBy={$user.username}
+    updatedAt={new Date().toLocaleString()}
   />
 {:else}
   <div class="wrapper">
@@ -149,7 +169,7 @@
           style={`background: url(${
             longFiles
               ? URL.createObjectURL(longFiles[0])
-              : `http://localhost:4202/uploads/` + long
+              : `${env.PUBLIC_BASE_URL}uploads/` + long
           }); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
           on:click={() => longUploader.click()}
           on:keydown={(e) => {
@@ -202,7 +222,7 @@
           style={`background: url(${
             files
               ? URL.createObjectURL(files[0])
-              : `http://localhost:4202/uploads/` + short
+              : `${env.PUBLIC_BASE_URL}uploads/` + short
           }); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
           on:click={() => uploader.click()}
           on:keydown={(e) => {
@@ -296,6 +316,7 @@
     margin-left: 100px;
     gap: 20px;
     flex-direction: column;
+    height: 90vh;
     width: 100%;
   }
 
@@ -365,7 +386,6 @@
     width: 100%;
     padding: 20px;
     border: 1px solid white;
-    overflow-y: auto;
     outline: none;
   }
 
@@ -400,6 +420,10 @@
     .right {
       margin-left: 0;
       margin-bottom: 20px;
+    }
+
+    .feature {
+      margin-top: 0;
     }
   }
 </style>

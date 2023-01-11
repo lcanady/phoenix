@@ -2,21 +2,7 @@
   import { menuItems } from "../stores";
   import Button from "./Button.svelte";
 
-  $menuItems = [
-    { name: "Featured Articles", title: true },
-    { name: "Link", path: "#" },
-    { name: "Link Two", path: "#" },
-    { name: "Link Three", path: "#" },
-    {
-      name: "Link Four",
-      onClick: () => {
-        console.log("Clicked");
-      },
-      alt: true,
-    },
-    { name: "Staff", title: true },
-    { name: "Link Four", path: "#" },
-  ];
+  $menuItems = [];
 </script>
 
 <div class="menu">
@@ -39,11 +25,12 @@
 
 <style lang="scss">
   .menu {
+    width: 300px;
     display: flex;
     flex-direction: column;
     position: absolute;
     top: 250px;
-    left: 20px;
+    left: 0;
     z-index: 7000;
   }
 
@@ -54,9 +41,9 @@
     li {
       font-family: "Roboto Mono", monospace;
       font-size: 16px;
+      line-height: 24px;
       text-align: right;
-      line-height: 32px;
-
+      padding-bottom: 15px;
       h2 {
         font-family: "Punktype", monospace;
         font-weight: normal;
@@ -81,7 +68,7 @@
 
   @media screen and (max-width: 1460px) {
     .menu {
-      margin-left: 20px;
+      margin-left: 50px;
       width: 250px;
     }
   }

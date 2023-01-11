@@ -1,31 +1,20 @@
 <script lang="ts">
-  import axios from "axios";
-
-  import { onMount } from "svelte";
+  import { env } from "$env/dynamic/public";
   import Article from "../../../components/Article.svelte";
   import { menuItems, user } from "../../../stores";
   import type { PageData } from "./$types";
 
   export let data: PageData;
 
-  onMount(() =>
-    axios
-      .get("http://localhost:4202/auth/user", {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
-      .then((res) => user.set(res.data.user))
-  );
-
-  $menuItems = [
-    {
-      name: "Featured Articles",
-      title: true,
-    },
-  ];
-
-  $menuItems = [...$menuItems, ...data.featured];
+  if (data.featured.length > 0) {
+    $menuItems = [
+      {
+        name: "Featured Articles",
+        title: true,
+      },
+    ];
+    $menuItems = [...$menuItems, ...data.featured];
+  }
 
   $: if ($user) {
     $menuItems = [];
@@ -45,13 +34,15 @@
       { name: "Create", path: "/wiki/new/" },
     ];
 
-    $menuItems = [
-      {
-        name: "Featured Articles",
-        title: true,
-      },
-      ...data.featured,
-    ];
+    if (data.featured.length > 0) {
+      $menuItems = [
+        {
+          name: "Featured Articles",
+          title: true,
+        },
+      ];
+      $menuItems = [...$menuItems, ...data.featured];
+    }
 
     if ($user.isAdmin) {
       $menuItems = [...$menuItems, ...staff];
@@ -62,8 +53,10 @@
 <Article
   title={data.article?.title}
   image={data.article?.shortImg &&
-    `http://localhost:4202/uploads/${data.article?.shortImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article?.shortImg}`}
   longImage={data.article.longImg &&
-    `http://localhost:4202/uploads/${data.article?.longImg}`}
+    `${env.PUBLIC_BASE_URL}uploads/${data.article?.longImg}`}
   body={data.article?.body}
+  updatedAt={new Date(data.article?.updatedAt).toLocaleString()}
+  updatedBy={data.article?.updatedBy}
 />

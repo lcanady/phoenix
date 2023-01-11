@@ -2,11 +2,12 @@
   import Button from "./Button.svelte";
   import { username, password, token, user, loginError } from "../stores";
   import axios from "axios";
+  import { env } from "$env/dynamic/public";
 
   const handleLogin = async () => {
     try {
       $loginError = "";
-      const res = await axios.post("http://localhost:4202/auth/", {
+      const res = await axios.post(`${env.PUBLIC_BASE_URL}auth/`, {
         username: $username,
         password: $password,
       });
@@ -17,6 +18,7 @@
       localStorage.setItem("token", data.token);
       $user = data.user;
     } catch (error: any) {
+      console.log(error);
       $loginError = "Invalid username or password";
     }
   };

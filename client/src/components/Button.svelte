@@ -3,9 +3,12 @@
   export let onClick: () => void = () => {};
   export let alt: Boolean = false;
   export let fullwidth: Boolean = false;
+  export let mobile: Boolean = false;
 </script>
 
-<button on:click={onClick} class:fullwidth class:clear={alt}>{label}</button>
+<button on:click={onClick} class:fullwidth class:mobile class:clear={alt}
+  >{label}</button
+>
 
 <style lang="scss">
   button {
@@ -19,6 +22,10 @@
     padding: 0 20px;
     outline: none;
     border: none;
+  }
+
+  .mobile {
+    min-height: 72px;
   }
 
   .fullwidth {

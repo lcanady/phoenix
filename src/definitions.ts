@@ -85,6 +85,6 @@ export interface Wiki {
   category: string;
   createdAt: number;
   updatedAt: number;
-  CreatedBy: string;
-  UpdatedBy: string;
+  createdBy: string;
+  updatedBy: string;
 }
