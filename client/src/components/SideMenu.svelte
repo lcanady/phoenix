@@ -1,4 +1,5 @@
 <script>
+  import { page } from "$app/stores";
   import { menuItems } from "../stores";
   import Button from "./Button.svelte";
 
@@ -16,7 +17,10 @@
         </li>
       {:else}
         <li class:padding={item.padding}>
-          <a href={item.path || "#"}>{item.name}</a>
+          <a
+            href={item.path || "#"}
+            class:active={item.path === $page.url.pathname}>{item.name}</a
+          >
         </li>
       {/if}
     {/each}
@@ -32,6 +36,9 @@
     top: 250px;
     left: 0;
     z-index: 7000;
+  }
+  .active {
+    color: white;
   }
 
   ul {
@@ -56,6 +63,7 @@
       a {
         color: rgba(255, 255, 255, 0.5);
         text-decoration: none;
+        border: hidden;
         font-family: "Roboto Mono", monospace;
       }
     }

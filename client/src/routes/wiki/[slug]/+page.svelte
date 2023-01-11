@@ -27,10 +27,7 @@
         name: "Edit",
         path: "/wiki/edit/" + data.article.slug,
       },
-      {
-        name: "Delete",
-        path: "/wiki/delete/" + data.article.slug,
-      },
+
       { name: "Create", path: "/wiki/new/" },
     ];
 

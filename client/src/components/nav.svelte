@@ -1,5 +1,6 @@
 <script>
   import { goto } from "$app/navigation";
+  import { page } from "$app/stores";
   import { env } from "$env/dynamic/public";
   import axios from "axios";
   import { onMount } from "svelte";
@@ -85,6 +86,7 @@
                 <li class:padding={item.padding}>
                   <a
                     href={item.path || "#"}
+                    class:active={$page.url.pathname === item.path}
                     on:click={(e) => {
                       e.preventDefault();
                       goto(item.path || "#");
@@ -163,12 +165,17 @@
     a {
       color: white;
       text-decoration: none;
+      border-bottom: hidden;
       font-family: "Roboto Mono", monospace;
       font-size: 16px;
       margin-left: 20px;
       cursor: pointer;
       letter-spacing: 5px;
     }
+  }
+
+  .active {
+    border-bottom: 1px solid white !important;
   }
 
   .hidden {
@@ -188,6 +195,7 @@
     a {
       font-size: 12px;
       letter-spacing: 0;
+      border-bottom: hidden;
     }
 
     ul {
@@ -294,6 +302,7 @@
       letter-spacing: normal;
       font-size: 20px;
       font-weight: lighter;
+      border-bottom: hidden;
     }
 
     li {

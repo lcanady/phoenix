@@ -32,7 +32,7 @@
         style={`background: linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url(${image});background-size: cover; background-position: center;`}
       />
     {/if}
-    <h1 style={`margin-top: 100px`}>{title}</h1>
+    <h1 style={`margin-top: 50px`}>{title}</h1>
     {#if updatedBy}
       <p class="subtitle">Last Update by {updatedBy} @ {updatedAt}</p>
     {/if}
@@ -58,7 +58,6 @@
     width: 100%;
     height: 500px;
     filter: saturate(0);
-    margin-bottom: -50px;
   }
 
   .image_top_mobile {
@@ -66,7 +65,6 @@
     width: 100%;
     height: 500px;
     filter: saturate(0);
-    margin-bottom: -50px;
   }
 
   .article {
@@ -106,6 +104,13 @@
     margin-bottom: 10px;
   }
 
+  :global(a) {
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid white;
+    transition: all 0.2s ease-in-out;
+  }
+
   :global(h2) {
     font-size: 24px;
     font-weight: normal;
@@ -128,6 +133,7 @@
     .article {
       margin-left: 300px !important;
     }
+
     .image_top_mobile {
       display: block;
     }

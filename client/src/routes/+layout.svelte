@@ -1,9 +1,11 @@
 <script>
   import SideMenu from "../components/SideMenu.svelte";
   import Nav from "../components/nav.svelte";
+  import Toast from "../components/Toast.svelte";
 </script>
 
 <div class="wrapper">
+  <Toast />
   <div class="background" />
   <div class="container">
     <Nav />
