@@ -20,10 +20,9 @@
   export let data: PageData;
 
   onMount(async () => {
-    const tkn = localStorage.getItem("token");
-    if (tkn) {
-      token.set(tkn);
+    token.set(localStorage.getItem("token") || "");
 
+    if ($token) {
       const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
         headers: {
           Authorization: "Bearer " + $token,
@@ -69,6 +68,14 @@
         });
     }
   };
+
+  const onCancel = () => {
+    goto(`/wiki/${data.article?.slug}`);
+  };
+
+  const onDelete = () => {
+    throw new Error("Not implemented");
+  };
 </script>
 
 <ArticleEditor
@@ -89,4 +96,6 @@
     slug: data.article?.slug,
   }}
   {onSave}
+  {onCancel}
+  {onDelete}
 />

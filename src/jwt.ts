@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-export const signToken = (_id: string) =>
+export const signToken = async (_id: string) =>
   new Promise<any>((resolve, reject) =>
     sign(
       _id,
@@ -16,7 +16,7 @@ export const signToken = (_id: string) =>
     )
   );
 
-export const verifyToken = (token: string) =>
+export const verifyToken = async (token: string) =>
   new Promise<any>((resolve, reject) =>
     verify(
       token,

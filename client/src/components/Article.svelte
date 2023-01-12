@@ -1,12 +1,14 @@
 <script lang="ts">
   import { marked } from "marked";
-
+  import { errorMsg } from "../stores";
   export let longImage = "";
   export let image = "";
   export let title = "";
   export let body = "";
   export let updatedBy: string = "";
   export let updatedAt: string = "";
+
+  errorMsg.set("");
 
   $: text = marked.parse(body);
 </script>
@@ -39,6 +41,7 @@
     {@html text}
 
     <slot />
+    <p class="error">{$errorMsg}</p>
   </div>
 </div>
 
@@ -52,6 +55,12 @@
     height: 100%;
     min-height: 100vh;
     filter: saturate(0);
+  }
+
+  :global(.error) {
+    color: red;
+    font-size: 16px;
+    margin-top: 20px;
   }
 
   .image_top {
@@ -77,7 +86,7 @@
   }
   .words {
     position: absolute;
-    top: 0;
+    top: 30px;
     width: 100%;
     max-height: 100vh;
     max-height: -webkit-fill-available;

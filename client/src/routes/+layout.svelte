@@ -1,11 +1,9 @@
-<script>
+<script lang="ts">
   import SideMenu from "../components/SideMenu.svelte";
   import Nav from "../components/nav.svelte";
-  import Toast from "../components/Toast.svelte";
 </script>
 
 <div class="wrapper">
-  <Toast />
   <div class="background" />
   <div class="container">
     <Nav />
@@ -76,6 +74,7 @@
 
   .content {
     display: flex;
+
     top: 0;
     left: 400px;
     height: 100vh;

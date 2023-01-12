@@ -29,18 +29,32 @@ router.post("/", async (req, res) => {
 
 router.get("/user", async (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1] || "";
-  const _id = await verifyToken(token);
-  const user = await db.findOne({ _id });
-  if (!user) return next(new Error("Invalid Token"));
-  res.status(200).json({
-    user: {
-      id: user?._id,
-      dbref: `#${user.dbref}`,
-      username: user?.name,
-      flags: user?.flags,
-      isAdmin: flags.check(user?.flags || "", "builder+"),
-    },
-  });
+  if (token) {
+    try {
+      const _id = await verifyToken(token || "");
+      const user = await db.findOne({ _id });
+      if (!user) {
+        next(new Error("Invalid Token"));
+      } else {
+        const data = {
+          user: {
+            id: user?._id,
+            dbref: `#${user.dbref}`,
+            username: user?.name,
+            flags: user?.flags,
+            isAdmin: flags.check(user?.flags || "", "builder+"),
+          },
+        };
+        return res.status(200).json(data);
+      }
+
+      next(new Error("Invalid user"));
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  next(new Error("Invalid Token"));
 });
 
 router.post("/register", async (req, res) => {

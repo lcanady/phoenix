@@ -43,6 +43,7 @@ export const menuItems = writable<MenuItem[]>(defaultLinks);
 export const preview = writable(false);
 export const user = writable<any>();
 export const featured = writable([]);
+export const errorMsg = writable("");
 
 export const uploadFile = async (file: File) => {
   const formData = new FormData();

@@ -1,25 +1,28 @@
-<script>
+<script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { env } from "$env/dynamic/public";
   import axios from "axios";
   import { onMount } from "svelte";
-  import { menuItems, menuToggle, token, user } from "../stores";
+  import { errorMsg, menuItems, menuToggle, token, user } from "../stores";
   import Button from "./Button.svelte";
-  import SideMenu from "./SideMenu.svelte";
 
   onMount(async () => {
+    $errorMsg = "";
     const tkn = localStorage.getItem("token");
     if (tkn) {
       token.set(tkn);
-
-      const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
-        headers: {
-          Authorization: "Bearer " + $token,
-        },
-      });
-
-      user.set(res.data.user);
+      try {
+        const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+          headers: {
+            authorization: "Bearer " + tkn,
+            contentType: "application/json",
+          },
+        });
+        if (res && res.data) user.set(res.data.user);
+      } catch (error: any) {
+        $errorMsg = error.message;
+      }
     }
   });
 
@@ -155,7 +158,7 @@
 <style lang="scss">
   nav {
     display: flex;
-    height: 105px;
+    height: 120px;
     align-items: center;
     justify-content: space-between;
     z-index: 70000;
@@ -214,8 +217,8 @@
   }
 
   .logo {
-    margin-top: 30px;
     display: flex;
+    height: 60px;
     align-items: flex-start;
     flex-direction: column;
   }
@@ -229,7 +232,6 @@
   }
 
   .subtitle {
-    font-size: 12px;
     color: rgba(255, 255, 255, 0.5);
     font-family: "Roboto Mono", monospace;
     font-size: 14px;

@@ -3,7 +3,7 @@
   import axios from "axios";
   import { onMount } from "svelte";
   import Article from "../../components/Article.svelte";
-  import { menuItems, user } from "../../stores";
+  import { errorMsg, menuItems, token, user } from "../../stores";
   import type { PageData } from "./$types";
 
   interface PageParams extends PageData {
@@ -13,15 +13,24 @@
 
   export let data: PageParams;
 
-  onMount(() =>
-    axios
-      .get(`${env.PUBLIC_BASE_URL}auth/user`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
-      .then((res) => user.set(res.data.user))
-  );
+  onMount(async () => {
+    $errorMsg = "";
+    const tkn = localStorage.getItem("token");
+    if (tkn) {
+      token.set(tkn);
+      try {
+        const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+          headers: {
+            authorization: "Bearer " + tkn,
+            contentType: "application/json",
+          },
+        });
+        if (res && res.data) user.set(res.data.user);
+      } catch (error: any) {
+        $errorMsg = error.message;
+      }
+    }
+  });
 
   $menuItems = [
     {

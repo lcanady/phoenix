@@ -3,20 +3,24 @@
   import Login from "../components/Login.svelte";
   import { onMount } from "svelte";
   import Article from "../components/Article.svelte";
-  import { menuItems, token, user } from "../stores";
+  import { errorMsg, menuItems, token, user } from "../stores";
   import type { PageData } from "./$types";
   import { env } from "$env/dynamic/public";
 
   export let data: PageData;
 
   onMount(() => {
-    axios
-      .get(`${env.PUBLIC_BASE_URL}auth/user`, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
-      .then((res) => user.set(res.data.user));
+    $errorMsg = "";
+    if ($token) {
+      axios
+        .get(`${env.PUBLIC_BASE_URL}auth/user`, {
+          headers: {
+            Authorization: "Bearer " + $token,
+          },
+        })
+        .then((res) => user.set(res.data.user))
+        .catch((err) => errorMsg.set(err.message));
+    }
   });
 
   if (data.featured.length > 0) {

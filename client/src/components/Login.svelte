@@ -1,12 +1,12 @@
 <script lang="ts">
   import Button from "./Button.svelte";
-  import { username, password, token, user, loginError } from "../stores";
+  import { username, password, token, user, errorMsg } from "../stores";
   import axios from "axios";
   import { env } from "$env/dynamic/public";
 
   const handleLogin = async () => {
     try {
-      $loginError = "";
+      $errorMsg = "";
       const res = await axios.post(`${env.PUBLIC_BASE_URL}auth/`, {
         username: $username,
         password: $password,
@@ -19,7 +19,7 @@
       $user = data.user;
     } catch (error: any) {
       console.log(error);
-      $loginError = "Invalid username or password";
+      $errorMsg = error.response.data.error;
     }
   };
 </script>
@@ -41,9 +41,14 @@
   </div>
   <div class="buttons">
     <Button label="LOGIN" alt fullwidth onClick={handleLogin} />
-    <Button label="REGISTER" fullwidth />
+    <Button
+      label="REGISTER"
+      fullwidth
+      onClick={() => {
+        $errorMsg = "Registration is clsed for now. Please come back later!";
+      }}
+    />
   </div>
-  <p class="error">{$loginError}</p>
 {/if}
 
 <style lang="scss">
@@ -78,11 +83,6 @@
     margin-bottom: 5px;
     border-bottom: white 1px solid;
     outline: none;
-  }
-
-  .error {
-    margin-top: 20px;
-    color: red;
   }
 
   @media screen and (max-width: 1050px) {

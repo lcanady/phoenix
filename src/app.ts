@@ -1,4 +1,10 @@
-import express, { Express, Request, Response } from "express";
+import express, {
+  Express,
+  NextFunction,
+  Request,
+  RequestHandler,
+  Response,
+} from "express";
 import { createServer, IncomingMessage } from "http";
 import { Server } from "socket.io";
 import { matchCmd, text } from "./cmds";
@@ -36,7 +42,7 @@ const sessionMiddleware = session({
 });
 
 app.use(express.static(resolve(__dirname, "../public")));
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: "*", allowedHeaders: "*" }));
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -71,6 +77,10 @@ const server = createServer(app);
 app.use("/db", auth, dbRoute);
 app.use("/auth", authorization);
 app.use("/wiki", wiki);
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  res.status(500).json({ error: err });
+});
 
 const io = new Server(server, {
   allowRequest: (req, callback) => {

@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { menuItems, preview, user, type IArticle } from "../stores";
+  import {
+    errorMsg,
+    menuItems,
+    preview,
+    token,
+    user,
+    type IArticle,
+  } from "../stores";
   import Button from "./Button.svelte";
   import { goto } from "$app/navigation";
   import Article from "./Article.svelte";
@@ -78,20 +85,22 @@
   let long = article?.longImg;
 
   onMount(async () => {
-    try {
-      const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
-        headers: {
-          authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    if ($token) {
+      try {
+        const res = await axios.get(`${env.PUBLIC_BASE_URL}auth/user`, {
+          headers: {
+            Authorization: "Bearer " + $token,
+            contentType: "application/json",
+          },
+        });
 
-      $user = res.data.user;
-      if (!res.data.user?.isAdmin) {
-        console.log("NEWP!!!");
-        goto("/wiki");
+        if (res.data) $user = res.data.user;
+        if (!res.data.user?.isAdmin) {
+          goto("/wiki");
+        }
+      } catch (error: any) {
+        $errorMsg = error.message;
       }
-    } catch (error) {
-      console.log(error);
     }
   });
 
