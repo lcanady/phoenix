@@ -50,9 +50,9 @@
   const onSave = async (article: IArticle) => {
     if ($token) {
       if (article.shortFile)
-        article.shortImg = await uploadFile(article.shortFile);
+        article.shortImg = await uploadFile(article.shortFile[0]);
       if (article.longFile)
-        article.longImg = await uploadFile(article.longFile);
+        article.longImg = await uploadFile(article.longFile[0]);
 
       axios
         .post(`${env.PUBLIC_BASE_URL}wiki/${data.article?.slug}`, article, {

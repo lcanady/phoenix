@@ -28,8 +28,8 @@ export interface IArticle {
   updatedAt: number;
   createdBy: string;
   updatedBy: string;
-  shortFile?: File;
-  longFile?: File;
+  shortFile?: FileList;
+  longFile?: FileList;
 }
 
 export const defaultLinks = [];

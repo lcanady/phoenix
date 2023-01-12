@@ -122,21 +122,21 @@
     updatedAt: Date.now(),
     updatedBy: $user?.id,
     createdBy: $user?.id,
-    shortFile: files && files[0],
-    longFile: longFiles && longFiles[0],
+    shortFile: files,
+    longFile: longFiles,
   } as IArticle;
 </script>
 
 {#if $preview}
   <Article
-    longImage={longFiles
+    longImage={longFiles?.length
       ? URL.createObjectURL(longFiles[0])
       : long
       ? env.PUBLIC_BASE_URL + "uploads/" + long
       : ""}
     {title}
     {body}
-    image={files
+    image={files?.length
       ? URL.createObjectURL(files[0])
       : short
       ? env.PUBLIC_BASE_URL + "uploads/" + short
@@ -147,7 +147,7 @@
 {:else}
   <div class="wrapper">
     <div class="left">
-      {#if longFiles || long}
+      {#if longFiles?.length || long}
         <div
           class="long-image"
           style={`background: url(${
@@ -200,11 +200,11 @@
         style="display:none;"
       />
 
-      {#if files || short}
+      {#if files?.length || short}
         <div
           class="feature"
           style={`background: url(${
-            files
+            files?.length
               ? URL.createObjectURL(files[0])
               : `${env.PUBLIC_BASE_URL}uploads/` + short
           }); background-repeat: no-repeat; background-position: center; background-size: cover; filter: saturate(0);`}
