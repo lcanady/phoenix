@@ -75,9 +75,9 @@ app.post("/upload", auth, upload.single("img"), (req, res, next) => {
 
 const server = createServer(app);
 
-app.use("/api/db", auth, dbRoute);
-app.use("/api/auth", authorization);
-app.use("/api/wiki", wiki);
+app.use("/db", auth, dbRoute);
+app.use("/auth", authorization);
+app.use("/wiki", wiki);
 
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
   res.status(500).json({ error: err });
