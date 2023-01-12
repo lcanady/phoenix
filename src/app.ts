@@ -68,6 +68,7 @@ const upload = multer({ storage: diskStorage });
 
 app.post("/upload", auth, upload.single("img"), (req, res, next) => {
   const file = req.file;
+  console.log(req.file);
   if (!file) return next(new Error("No file uploaded!"));
   res.status(200).json({ file: file?.filename });
 });
