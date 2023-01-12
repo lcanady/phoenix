@@ -3,3 +3,4 @@ data
 .env
 sessions
 uploads
+*.log
