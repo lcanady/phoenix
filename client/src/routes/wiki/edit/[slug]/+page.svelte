@@ -73,8 +73,21 @@
     goto(`/wiki/${data.article?.slug}`);
   };
 
-  const onDelete = () => {
-    throw new Error("Not implemented");
+  const onDelete = (article: IArticle) => {
+    if ($token) {
+      axios
+        .delete(`${env.PUBLIC_BASE_URL}wiki/${article.slug}`, {
+          headers: {
+            Authorization: "Bearer " + $token,
+          },
+        })
+        .then(() => {
+          goto(`/wiki`);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   };
 </script>
 
