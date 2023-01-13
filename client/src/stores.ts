@@ -50,7 +50,7 @@ export const usefulLinks = writable([
     title: true,
   },
   {
-    name: "Wiki Archive",
+    name: "Wiki Archives",
     path: "/wiki/archive",
   },
 ]);
