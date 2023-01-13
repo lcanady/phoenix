@@ -105,7 +105,7 @@ router.get("/landing", async (req, res) => {
   let wiki = await WikiDB.find({ landing: true });
   wiki = await Promise.all(
     wiki.map(async (article) => {
-      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      article.updatedBy = (await db.findOne({ _id: article?.updatedBy })).name;
       return article;
     })
   );

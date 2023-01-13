@@ -1,6 +1,6 @@
 <script>
-  import { page } from "$app/stores";
   import { menuItems } from "../stores";
+  import { page } from "$app/stores";
   import Button from "./Button.svelte";
 
   $menuItems = [];
