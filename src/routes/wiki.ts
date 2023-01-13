@@ -77,7 +77,7 @@ router.get("/default", async (req, res) => {
   let wiki = await WikiDB.find({ default: true });
   wiki = await Promise.all(
     wiki.map(async (article) => {
-      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      article.updatedBy = (await db.findOne({ _id: article?.updatedBy })).name;
       return article;
     })
   );
@@ -88,7 +88,7 @@ router.get("/", async (req, res) => {
   let wiki = await WikiDB.find({});
   wiki = await Promise.all(
     wiki.map(async (article) => {
-      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      article.updatedBy = (await db.findOne({ _id: article?.updatedBy })).name;
       return article;
     })
   );
