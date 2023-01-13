@@ -42,7 +42,7 @@ const sessionMiddleware = session({
 });
 
 app.use(express.static(resolve(__dirname, "../public")));
-app.use(cors({ origin: "*", allowedHeaders: "*" }));
+app.use(cors({ origin: "https://bridgetown.io", allowedHeaders: "*" }));
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
