@@ -40,6 +40,7 @@
 <style lang="scss">
   .wrapper {
     display: flex;
+    justify-content: space-between;
     width: 100%;
     padding-bottom: 20px;
     border-bottom: rgba(255, 255, 255, 0.2) 1px solid;
