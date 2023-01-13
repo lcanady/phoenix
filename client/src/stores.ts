@@ -44,6 +44,16 @@ export const preview = writable(false);
 export const user = writable<any>();
 export const featured = writable([]);
 export const errorMsg = writable("");
+export const usefulLinks = writable([
+  {
+    name: "Useful Links",
+    title: true,
+  },
+  {
+    name: "Wiki Archive",
+    path: "/wiki/archive",
+  },
+]);
 
 export const uploadFile = async (file: File) => {
   const formData = new FormData();

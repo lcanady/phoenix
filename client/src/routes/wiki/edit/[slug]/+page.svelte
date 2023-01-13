@@ -55,11 +55,15 @@
         article.longImg = await uploadFile(article.longFile[0]);
 
       axios
-        .post(`${env.PUBLIC_BASE_URL}wiki/${data.article?.slug}`, article, {
-          headers: {
-            Authorization: "Bearer " + $token,
-          },
-        })
+        .post(
+          `${env.PUBLIC_BASE_URL}wiki/article/${data.article?.slug}`,
+          article,
+          {
+            headers: {
+              Authorization: "Bearer " + $token,
+            },
+          }
+        )
         .then((res) => {
           goto(`/wiki/${article.slug}`);
         })
@@ -76,7 +80,7 @@
   const onDelete = (article: IArticle) => {
     if ($token) {
       axios
-        .delete(`${env.PUBLIC_BASE_URL}wiki/${article.slug}`, {
+        .delete(`${env.PUBLIC_BASE_URL}wiki/article/${article.slug}`, {
           headers: {
             Authorization: "Bearer " + $token,
           },

@@ -74,23 +74,53 @@
 
   .content {
     display: flex;
-
     top: 0;
     left: 400px;
     height: 100vh;
+    padding-top: 100px;
     width: 100%;
     z-index: 6000;
     color: white;
     font-family: "Roboto Mono", monospace;
   }
 
-  @media screen and (max-width: 1050px) {
-    .container {
-      padding: 0 20px;
-    }
+  :global(h1) {
+    font-size: 32px;
+    font-weight: normal;
+    font-family: "Punktype", monospace;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
 
+  :global(a) {
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid white;
+    transition: all 0.2s ease-in-out;
+  }
+
+  :global(h2) {
+    font-size: 24px;
+    font-weight: normal;
+    font-family: "Punktype", monospace;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
+
+  :global(p) {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+
+  @media screen and (max-width: 1050px) {
     .content {
       left: 0;
+    }
+
+    .container {
+      padding: 0 20px;
+      margin: 0 20px;
     }
   }
 </style>

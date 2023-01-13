@@ -4,7 +4,15 @@
   import { token, uploadFile, user, type IArticle } from "../../../stores";
   import { onMount } from "svelte";
   import ArticleEditor from "../../../components/ArticleEditor.svelte";
-  import { goto } from "$app/navigation";
+  import { afterNavigate, goto } from "$app/navigation";
+  import { page } from "$app/stores";
+  import { base } from "$app/paths";
+
+  let previousPage: string = base;
+
+  afterNavigate(({ from }) => {
+    previousPage = from?.url.pathname || previousPage;
+  });
 
   onMount(async () => {
     const tkn = localStorage.getItem("token");
@@ -44,7 +52,7 @@
   };
 
   const onCancel = (article: IArticle) => {
-    goto("/wiki");
+    goto(previousPage);
   };
 
   const onDelete = (article: IArticle) => {

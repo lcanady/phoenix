@@ -157,6 +157,9 @@
 
 <style lang="scss">
   nav {
+    position: absolute;
+    left: 0;
+    top: 0;
     display: flex;
     height: 120px;
     align-items: center;
@@ -164,6 +167,7 @@
     z-index: 70000;
     width: 100%;
     gap: 20px;
+    padding: 0 100px;
 
     a {
       color: white;
@@ -334,6 +338,10 @@
   @media screen and (max-width: 1024px) {
     .links {
       display: none;
+    }
+
+    nav {
+      padding: 0 20px;
     }
 
     .logo {

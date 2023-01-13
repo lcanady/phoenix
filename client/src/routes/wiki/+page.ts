@@ -4,7 +4,7 @@ import { env } from "$env/dynamic/public";
 import { error } from "@sveltejs/kit";
 
 export const load = (async () => {
-  const res = await axios.get(`${env.PUBLIC_BASE_URL}wiki/`);
+  const res = await axios.get(`${env.PUBLIC_BASE_URL}wiki/default`);
   const article = await res.data;
   const feat = await axios.get(`${env.PUBLIC_BASE_URL}wiki/featured`);
   const featured = (await feat.data).map((a: any) => ({

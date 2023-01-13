@@ -1,9 +1,9 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
   import axios from "axios";
-  import { onMount } from "svelte";
+  import { onDestroy, onMount } from "svelte";
   import Article from "../../components/Article.svelte";
-  import { errorMsg, menuItems, token, user } from "../../stores";
+  import { errorMsg, menuItems, token, usefulLinks, user } from "../../stores";
   import type { PageData } from "./$types";
 
   interface PageParams extends PageData {
@@ -39,7 +39,7 @@
     },
   ];
 
-  $menuItems = [...$menuItems, ...data.featured];
+  $menuItems = [...$menuItems, ...data.featured, ...$usefulLinks];
 
   $: if ($user) {
     $menuItems = [];
@@ -65,7 +65,7 @@
     ];
 
     if ($user.isAdmin) {
-      $menuItems = [...$menuItems, ...staff];
+      $menuItems = [...$menuItems, ...$usefulLinks, ...staff];
     }
   }
 </script>

@@ -4,7 +4,9 @@ import axios from "axios";
 import type { PageLoad } from "./$types";
 
 export const load = (async ({ params }) => {
-  const res = await axios.get(`${env.PUBLIC_BASE_URL}wiki/${params.slug}`);
+  const res = await axios.get(
+    `${env.PUBLIC_BASE_URL}wiki/article/${params.slug}`
+  );
   const article = await res.data;
 
   const feat = await axios.get(`${env.PUBLIC_BASE_URL}wiki/featured`);

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
   import Article from "../../../components/Article.svelte";
-  import { menuItems, user } from "../../../stores";
+  import { menuItems, usefulLinks, user } from "../../../stores";
   import type { PageData } from "./$types";
 
   export let data: PageData;
@@ -13,7 +13,7 @@
         title: true,
       },
     ];
-    $menuItems = [...$menuItems, ...data.featured];
+    $menuItems = [...$menuItems, ...data.featured, ...$usefulLinks];
   }
 
   $: if ($user) {
@@ -38,7 +38,7 @@
           title: true,
         },
       ];
-      $menuItems = [...$menuItems, ...data.featured];
+      $menuItems = [...$menuItems, ...data.featured, ...$usefulLinks];
     }
 
     if ($user.isAdmin) {

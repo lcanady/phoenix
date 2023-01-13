@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { unlink } from "fs/promises";
+import path from "path";
 import { db, WikiDB } from "../database";
 import { Wiki } from "../definitions";
 import flags from "../flags";
@@ -71,8 +73,19 @@ router.post("/", auth, async (req, res, next) => {
   }
 });
 
-router.get("/", async (req, res) => {
+router.get("/default", async (req, res) => {
   let wiki = await WikiDB.find({ default: true });
+  wiki = await Promise.all(
+    wiki.map(async (article) => {
+      article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
+      return article;
+    })
+  );
+  res.status(200).json(wiki);
+});
+
+router.get("/", async (req, res) => {
+  let wiki = await WikiDB.find({});
   wiki = await Promise.all(
     wiki.map(async (article) => {
       article.updatedBy = (await db.findOne({ _id: article.updatedBy })).name;
@@ -99,7 +112,7 @@ router.get("/landing", async (req, res) => {
   res.status(200).json(wiki);
 });
 
-router.get("/:slug", async (req, res) => {
+router.get("/article/:slug", async (req, res) => {
   const wiki = await WikiDB.findOne({
     $or: [
       { _id: req.params.slug },
@@ -108,12 +121,12 @@ router.get("/:slug", async (req, res) => {
     ],
   });
 
-  wiki.updatedBy = (await db.findOne({ _id: wiki.updatedBy })).name;
+  wiki.updatedBy = (await db.findOne({ _id: wiki?.updatedBy })).name;
 
   res.status(200).json(wiki);
 });
 
-router.post("/:slug", auth, async (req, res, next) => {
+router.post("/article/:slug", auth, async (req, res, next) => {
   const exits = await WikiDB.findOne({
     $or: [
       { slug: new RegExp(req.params.slug, "i") },
@@ -158,6 +171,39 @@ router.post("/:slug", auth, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+router.delete("/article/:slug", auth, async (req, res, next) => {
+  const exists = await WikiDB.findOne({
+    $or: [
+      { slug: new RegExp(req.params.slug, "i") },
+      { title: new RegExp(req.params.slug, "i") },
+    ],
+  });
+
+  if (!exists) return next(new Error("Article does not exist"));
+  if (!flags.check(req.body.user.flags || "", "admin+"))
+    return next(new Error("You do not have permission to do this"));
+
+  try {
+    if (exists.shortImg)
+      await unlink(path.join(__dirname, `../../public${exists.shortImg}`));
+
+    if (exists.longImg)
+      await unlink(path.join(__dirname, `../../public${exists.longImg}`));
+    const wiki = await WikiDB.remove({ _id: exists._id });
+
+    res.status(200).json(wiki);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.get("/categories", async (req, res, next) => {
+  const cats = await WikiDB.find({});
+  if (!cats) return next(new Error("No categories found"));
+  let categories = Array.from(new Set(cats.map((c) => c.category)));
+  res.status(200).json(categories);
 });
 
 export default router;

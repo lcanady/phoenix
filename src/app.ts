@@ -42,7 +42,20 @@ const sessionMiddleware = session({
 });
 
 app.use(express.static(resolve(__dirname, "../public")));
-app.use(cors({ origin: "https://bridgetown.io", allowedHeaders: "*" }));
+
+var whitelist = ["http://localhost:5173", "https://bridgetown.io"];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || whitelist.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+  })
+);
 app.use(sessionMiddleware);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -74,7 +74,7 @@
     padding-bottom: 20px;
   }
 
-  @media screen and (max-width: 1460px) {
+  @media screen and (max-width: 1700px) {
     .menu {
       margin-left: 50px;
       width: 250px;

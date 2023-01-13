@@ -10,7 +10,7 @@ export const load = (async () => {
   const feat = await axios.get(`${env.PUBLIC_BASE_URL}wiki/featured`);
   const featured = (await feat.data).map((a: any) => ({
     name: a.title,
-    path: `/wiki/${a.slug}`,
+    path: `wiki/${a.slug}`,
   }));
 
   if (!article.length) throw error(404, "Article not found");

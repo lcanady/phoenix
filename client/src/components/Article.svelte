@@ -105,35 +105,6 @@
     opacity: 0.7;
   }
 
-  h1 {
-    font-size: 32px;
-    font-weight: normal;
-    font-family: "Punktype", monospace;
-    letter-spacing: 5px;
-    margin-bottom: 10px;
-  }
-
-  :global(a) {
-    color: white;
-    text-decoration: none;
-    border-bottom: 1px solid white;
-    transition: all 0.2s ease-in-out;
-  }
-
-  :global(h2) {
-    font-size: 24px;
-    font-weight: normal;
-    font-family: "Punktype", monospace;
-    letter-spacing: 5px;
-    margin-bottom: 10px;
-  }
-
-  :global(p) {
-    font-size: 16px;
-    line-height: 1.5;
-    margin-bottom: 20px;
-  }
-
   @media screen and (max-width: 1350px) {
     .image {
       display: none;
