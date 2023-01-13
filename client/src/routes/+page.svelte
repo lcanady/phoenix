@@ -3,7 +3,7 @@
   import Login from "../components/Login.svelte";
   import { onMount } from "svelte";
   import Article from "../components/Article.svelte";
-  import { errorMsg, menuItems, token, user } from "../stores";
+  import { errorMsg, menuItems, token, usefulLinks, user } from "../stores";
   import type { PageData } from "./$types";
   import { env } from "$env/dynamic/public";
 
@@ -30,7 +30,7 @@
         title: true,
       },
     ];
-    $menuItems = [...$menuItems, ...data.featured];
+    $menuItems = [...$menuItems, ...data.featured, ...$usefulLinks];
   }
 
   $: if ($user) {
@@ -59,9 +59,9 @@
     }
 
     if ($user.isAdmin) {
-      $menuItems = [...$menuItems, ...staff];
+      $menuItems = [...$menuItems, ...$usefulLinks, ...staff];
     } else {
-      $menuItems = [...$menuItems];
+      $menuItems = [...$menuItems, ...$usefulLinks];
     }
   }
 </script>
