@@ -121,9 +121,9 @@ router.get("/article/:slug", async (req, res) => {
     ],
   });
 
-  wiki.updatedBy = (await db.findOne({ _id: wiki?.updatedBy })).name;
+  if (wiki) wiki.updatedBy = (await db.findOne({ _id: wiki?.updatedBy }))?.name;
 
-  res.status(200).json(wiki);
+  return res.status(200).json(wiki || {});
 });
 
 router.post("/article/:slug", auth, async (req, res, next) => {

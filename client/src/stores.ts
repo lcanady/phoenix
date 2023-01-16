@@ -1,5 +1,6 @@
 import { env } from "$env/dynamic/public";
 import axios from "axios";
+import type { Socket } from "socket.io-client";
 import { writable } from "svelte/store";
 
 export interface MenuItem {
@@ -33,11 +34,13 @@ export interface IArticle {
 }
 
 export const defaultLinks = [];
-
+export const socket = writable<Socket>();
+export const messages = writable<any[]>([]);
 export const menuToggle = writable(false);
 export const username = writable("");
 export const password = writable("");
 export const token = writable("");
+export const cid = writable("");
 export const loginError = writable("");
 export const menuItems = writable<MenuItem[]>(defaultLinks);
 export const preview = writable(false);

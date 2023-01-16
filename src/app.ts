@@ -7,7 +7,7 @@ import express, {
 } from "express";
 import { createServer, IncomingMessage } from "http";
 import { Server } from "socket.io";
-import { matchCmd, text } from "./cmds";
+import { force, matchCmd, text } from "./cmds";
 import "./telnet";
 import { send } from "./broadcast";
 import { MuSocket } from "./definitions";
@@ -21,6 +21,8 @@ import { resolve } from "path";
 import auth from "./middleware/auth";
 import cors from "cors";
 import multer from "multer";
+import { verifyToken } from "./jwt";
+import { login } from "./utils";
 
 declare module "http" {
   interface IncomingMessage {
@@ -122,6 +124,7 @@ const io = new Server(server, {
     sessionMiddleware(req as Request, fakeRes as unknown as Response, () => {
       if (req.session) {
         // trigger the setHeader() above
+
         fakeRes.writeHead();
         // manually save the session (normally triggered by res.end())
         req.session.save();
@@ -143,7 +146,8 @@ io.engine.on(
 
 io.on("connection", async (socket: MuSocket) => {
   const session = socket.request.session;
-  const cid = socket.handshake.headers.cid as string;
+  const cid = socket.handshake.query.cid as string;
+  const token = socket.handshake.auth.token as string;
 
   session.reload(async (err) => {
     if (err) {
@@ -156,9 +160,27 @@ io.on("connection", async (socket: MuSocket) => {
       socket.join(session.cid);
       socket.join(en?.data?.location || "");
       set(en, "connected");
+      send(socket.id, "Welcome back to the game!", { cid: en._id });
     } else {
       const connect = text.get("connect") || "Welcome to the game!";
-      send(socket.id, connect);
+      send(socket.id, connect, { cmd: "welcome" });
+
+      if (token) {
+        const id = await verifyToken(token);
+        if (id) {
+          const en = await player(id);
+          socket.cid = id;
+          socket.join(id);
+          socket.join(en?.data?.location || "");
+          set(en, "connected");
+          send(socket.id, "Welcome to the game!", { cid: en._id });
+          const ctx = { socket, text: "", data: {}, scope: {} };
+          login(ctx, en);
+          await force(ctx.socket, "@mail/notify");
+          await force(ctx.socket, "@myjobs");
+          await force(ctx.socket, "look");
+        }
+      }
 
       session.save();
     }

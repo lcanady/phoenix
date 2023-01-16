@@ -84,6 +84,9 @@
   let short = article?.shortImg;
   let long = article?.longImg;
 
+  let slugInput: HTMLInputElement;
+  let titleInput: HTMLInputElement;
+
   onMount(async () => {
     if ($token) {
       try {
@@ -125,6 +128,18 @@
     shortFile: files,
     longFile: longFiles,
   } as IArticle;
+
+  $: taken = false;
+  $: customSlug = false;
+
+  let timer: NodeJS.Timeout;
+
+  const debounce = (v: () => void, time = 750) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      v();
+    }, time);
+  };
 </script>
 
 {#if $preview}
@@ -237,7 +252,73 @@
       {/if}
 
       <div class="inputs_stacked">
-        <input placeholder="Article Title" bind:value={title} />
+        <input
+          placeholder="Article Title"
+          bind:value={title}
+          bind:this={titleInput}
+          on:keyup={(e) => {
+            if (!article?.slug) theSlug = slug(title, { lower: true });
+            taken = false;
+            $errorMsg = "";
+            debounce(async () => {
+              if (titleInput.value) {
+                const res = await fetch(
+                  `${env.PUBLIC_BASE_URL}wiki/article/${theSlug}`,
+                  {
+                    headers: {
+                      "Content-Type": "application/json",
+                      authorization: `Bearer ${$token}`,
+                    },
+                  }
+                );
+
+                if ((await res.json()).slug && !article?.slug) {
+                  $errorMsg = "Article with slug title already exists";
+                  taken = true;
+                } else {
+                  $errorMsg = "";
+                  taken = false;
+                }
+              }
+            }, 500);
+          }}
+        />
+
+        <input
+          placeholder="Slug"
+          bind:value={theSlug}
+          class:errortext={taken}
+          bind:this={slugInput}
+          on:keydown={() => slugInput.value.replace(" ", "-")}
+          on:keyup={(e) => {
+            taken = false;
+            $errorMsg = "";
+            debounce(async () => {
+              try {
+                if (slugInput.value) {
+                  const res = await fetch(
+                    `${env.PUBLIC_BASE_URL}wiki/article/${theSlug}`,
+                    {
+                      headers: {
+                        "Content-Type": "application/json",
+                        authorization: `Bearer ${$token}`,
+                      },
+                    }
+                  );
+
+                  theSlug = slug(theSlug, { lower: true });
+                  if ((await res.json()).slug && theSlug !== article?.slug) {
+                    $errorMsg = "Article with this slug already exists";
+                    taken = true;
+                  }
+                }
+              } catch (e) {
+                $errorMsg = "";
+                taken = false;
+              }
+            }, 500);
+          }}
+        />
         <div class="inputs">
           <input placeholder="Category" bind:value={category} />
           <input placeholder="lock" bind:value={lock} />
@@ -276,10 +357,11 @@
           onClick={() => onCancel(filledArticle)}
         />
       </div>
-      <div class="inputs">
+      <div class="inputs-stacked">
         <button class="delete" on:click={() => onDelete(filledArticle)}
           >Delete</button
         >
+        <p class="error">{$errorMsg}</p>
       </div>
     </div>
   </div>
@@ -309,7 +391,7 @@
 
   .feature {
     margin-bottom: 20px;
-    height: 500px;
+    height: 350px;
     flex-shrink: 0;
     width: 100%;
     background: url("/Image.png"), #101010;
@@ -339,6 +421,7 @@
 
     input {
       flex-grow: 1;
+      color: white;
     }
   }
 
@@ -381,7 +464,7 @@
 
   .content {
     background: #101010;
-    height: 260px;
+    height: 220px;
     font-family: "Roboto Mono", monospace;
     font-size: 16px;
     color: white;
@@ -407,6 +490,11 @@
     outline: none;
     width: 100%;
     cursor: pointer;
+  }
+
+  .errortext {
+    color: red;
+    margin-top: 0;
   }
 
   @media screen and (max-width: 1290px) {

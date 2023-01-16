@@ -15,6 +15,6 @@ export const load = (async ({ params }) => {
     path: `/wiki/${a.slug}`,
   }));
 
-  if (!article) throw error(404, "Article not found");
+  if (!article || !article.slug) throw error(404, "Article not found");
   return { article, featured };
 }) satisfies PageLoad;

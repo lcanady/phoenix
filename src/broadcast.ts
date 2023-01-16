@@ -2,7 +2,7 @@ import parser from "./parser";
 import { io } from "./app";
 import Convert from "ansi-to-html";
 
-const convert = new Convert();
+const convert = new Convert({ escapeXML: true });
 
 export const send = (
   target: string[] | string,

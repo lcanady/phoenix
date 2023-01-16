@@ -88,3 +88,28 @@ export interface Wiki {
   createdBy: string;
   updatedBy: string;
 }
+
+export interface Archetype {
+  _id?: string;
+  name: string;
+  description: string;
+  shortdesc?: string;
+  lock?: string;
+  blood: number;
+  heart: number;
+  mind: number;
+  Spirit: number;
+  mortality: number;
+  night: number;
+  power: number;
+  wild: number;
+}
+
+export interface Move {
+  _id?: string;
+  name: string;
+  description: string;
+  shortdesc?: string;
+  lock?: string;
+  flags?: string;
+}

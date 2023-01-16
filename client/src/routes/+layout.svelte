@@ -1,6 +1,15 @@
 <script lang="ts">
   import SideMenu from "../components/SideMenu.svelte";
   import Nav from "../components/nav.svelte";
+  import { onMount } from "svelte";
+  import { cid, token } from "../stores";
+
+  onMount(() => {
+    const id = localStorage.getItem("cid");
+    const tkn = localStorage.getItem("token");
+    if (id) $cid = id;
+    if (tkn) $token = tkn;
+  });
 </script>
 
 <div class="wrapper">
@@ -30,6 +39,24 @@
   :global(html) {
     height: webkit-fill-available;
     overflow: hidden;
+  }
+
+  :global(ul) {
+    margin-left: 40px;
+    list-style: disc;
+  }
+
+  :global(ol) {
+    margin-left: 40px;
+  }
+
+  :global(blockquote) {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-left: 2px solid white;
+    padding: 10px 10px 10px 20px;
   }
 
   .wrapper {
@@ -104,7 +131,7 @@
     font-weight: normal;
     font-family: "Punktype", monospace;
     letter-spacing: 5px;
-    margin-bottom: 10px;
+    margin: 20px 0 10px 0;
   }
 
   :global(p) {

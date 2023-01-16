@@ -48,7 +48,14 @@
             menuToggle.set(false);
           }}>WIKI</a
         >
-
+        <a
+          href="/wiki"
+          on:click={(e) => {
+            e.preventDefault();
+            goto("/client");
+            menuToggle.set(false);
+          }}>CLIENT</a
+        >
         {#if $user}
           <a
             href="/profile"
@@ -114,6 +121,7 @@
   </div>
   <div class="links">
     <a href="/wiki">WIKI</a>
+    <a href="/client">CLIENT</a>
 
     {#if $token}
       <img

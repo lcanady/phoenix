@@ -28,7 +28,9 @@ export default () =>
           { ...user, ...{ flags: tags }, ...data }
         );
         ctx.data.player = user;
-        send(ctx.socket.id, `Welcome back to the server, ${user.name}!`);
+        send(ctx.socket.id, `Welcome back to the server, ${user.name}!`, {
+          cid: user._id,
+        });
         await login(ctx, user);
         await force(ctx.socket, "@mail/notify");
         await force(ctx.socket, "@myjobs");

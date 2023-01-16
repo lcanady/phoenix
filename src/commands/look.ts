@@ -1,7 +1,9 @@
+import Convert from "ansi-to-html";
 import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import { db } from "../database";
 import flags from "../flags";
+import parser from "../parser";
 import {
   canSee,
   center,
@@ -19,6 +21,10 @@ export default () =>
     pattern: /^(?:l|look)(?:\s+(.*))?$/i,
     flags: "connected",
     render: async (ctx, args) => {
+      const convert = new Convert({ escapeXML: true });
+      const sub = (str: string) =>
+        convert.toHtml(parser.substitute("telnet", str));
+
       const player = await db.findOne({ _id: ctx.socket.cid });
       if (player) {
         args[1] ||= "here";
@@ -97,7 +103,27 @@ export default () =>
             );
         }
         desc += "=".repeat(80);
-        send(ctx.socket.id, desc);
+        send(ctx.socket.id, desc, {
+          cmd: "Look",
+          target: displayName(player, target),
+          shortdesc: getAttr(target, "short-desc").value,
+          desc: sub(
+            getAttr(target, "description").value || "You see nothing special."
+          ),
+          avatar: target.data.avatar,
+          contents: contents.map((item) => ({
+            _id: item._id,
+            name: displayName(player, item),
+            shortdesc: getAttr(item, "short-desc").value,
+            idle: sub(
+              idle((item._id === player._id ? 0 : item.data?.lastCommand) || 0)
+            ),
+          })),
+          exits: exits.map((item) => ({
+            _id: item._id,
+            name: displayName(player, item),
+          })),
+        });
       }
     },
   });
