@@ -120,8 +120,8 @@
     </button>
   </div>
   <div class="links">
-    <a href="/wiki">WIKI</a>
-    <a href="/client">CLIENT</a>
+    <a href="/wiki" data-sveltekit-noscroll>WIKI</a>
+    <a href="/client" data-sveltekit-noscroll> CLIENT</a>
 
     {#if $token}
       <img

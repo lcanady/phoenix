@@ -5,17 +5,39 @@
 </script>
 
 <div class="container">
-  {#if data.avatar}
+  {#if data.header || data.avatar}
     <div
       class="avatar"
       style="background:  linear-gradient(180deg, rgba(0, 0, 0, 0) 2.6%, #000000 96.94%), url({env.PUBLIC_BASE_URL +
         'uploads/' +
-        data.avatar});"
+        (data.header || data.avatar)});"
     />
   {/if}
-  <h1>{data.target}</h1>
-  <p class="sub">{data.shortdesc}</p>
-  <p class="desc">{@html data.desc}</p>
+
+  {#if data.flags.includes("player")}
+    <div class="avatar_container">
+      <img
+        class="avatar2"
+        src={data.avatar
+          ? env.PUBLIC_BASE_URL + "uploads/" + data.avatar
+          : "/default_avatar.png"}
+        alt="avatar"
+      />
+      <div class="text">
+        <h1>{data.target}</h1>
+        <p class="sub">{data.shortdesc}</p>
+      </div>
+    </div>
+  {:else}
+    <h1>{data.target}</h1>
+    <p class="sub">{data.shortdesc}</p>
+  {/if}
+
+  {#if data.flags.includes("player")}
+    <p class="desc2">{@html data.desc}</p>
+  {:else}
+    <p class="desc">{@html data.desc}</p>
+  {/if}
   {#if data.contents.length > 0}
     <h2>Characters</h2>
     <table style="table-layout:fixed;">
@@ -36,9 +58,30 @@
 </div>
 
 <style lang="scss">
+  .avatar_container {
+    display: flex;
+    margin-bottom: 20px;
+    align-items: center;
+  }
+
+  .container {
+    border-bottom: rgba(255, 255, 255, 0.3) 1px solid;
+    margin-bottom: 10px;
+  }
+
+  .avatar2 {
+    height: 80px;
+    width: 80px;
+    border-radius: 50%;
+    filter: saturate(0);
+    border: 1px solid #fff;
+    margin-right: 20px;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
+    margin-bottom: 20px;
 
     tr:nth-child(even) {
       background-color: rgba(255, 255, 255, 0.05);

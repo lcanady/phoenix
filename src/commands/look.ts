@@ -110,6 +110,8 @@ export default () =>
           desc: sub(
             getAttr(target, "description").value || "You see nothing special."
           ),
+          flags: target.flags,
+          header: target.data.header,
           avatar: target.data.avatar,
           contents: contents.map((item) => ({
             _id: item._id,

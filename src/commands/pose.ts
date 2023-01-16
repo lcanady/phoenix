@@ -1,7 +1,6 @@
 import { send } from "../broadcast";
 import { addCmd } from "../cmds";
 import { db } from "../database";
-import { Cmd } from "../definitions";
 
 export default () =>
   addCmd({
@@ -15,7 +14,15 @@ export default () =>
           ? `${player.name}${args[2]}%cn`
           : `${player.name} ${args[2]}%cn`;
       if (player) {
-        send(player.data?.location || "", msg);
+        send(player.data?.location || "", msg, {
+          cmd: "pose",
+          enactor: {
+            _id: player._id,
+            dbref: `#${player.dbref}`,
+            name: player.name,
+            avatar: player.data?.avatar || "",
+          },
+        });
       }
     },
   });

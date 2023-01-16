@@ -16,7 +16,9 @@
         return Welcome;
       case "look":
         return Look;
-      case "say" || "pose":
+      case "say":
+        return Pose;
+      case "pose":
         return Pose;
       default:
         return Default;
@@ -95,6 +97,7 @@
     display: flex;
     flex-direction: column;
     height: 90vh;
+    max-height: webkit-fill-available;
     width: 100vw;
   }
   .container {
@@ -104,6 +107,7 @@
     display: flex;
     flex-direction: column;
     max-height: 90vh;
+    max-height: webkit-fill-available;
   }
 
   .scroller * {
