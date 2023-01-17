@@ -3,7 +3,14 @@
   import { io } from "socket.io-client";
   import Look from "../../components/client/Look.svelte";
   import { afterUpdate, onMount } from "svelte";
-  import { cid, menuItems, messages, socket, token } from "../../stores";
+  import {
+    cid,
+    history,
+    menuItems,
+    messages,
+    socket,
+    token,
+  } from "../../stores";
   import Welcome from "../../components/client/Welcome.svelte";
   import Default from "../../components/client/Default.svelte";
   import Pose from "../../components/client/Pose.svelte";
@@ -13,7 +20,6 @@
   let scroll: HTMLDivElement;
 
   afterUpdate(() => {
-    console.log(output.scrollHeight - output.offsetHeight, output.scrollTop);
     if (
       output &&
       output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) > -100
@@ -90,10 +96,27 @@
       on:keydown={(e) => {
         if (e.key == "Enter" && input.trim() != "") {
           e.preventDefault();
+          $history = [...$history, input.trim()];
           $socket.emit("chat message", { msg: input.trim(), data: {} });
           input = "";
           e.currentTarget.innerText = "";
           e.currentTarget.innerHTML = "";
+        }
+
+        if (e.key == "ArrowUp") {
+          e.preventDefault();
+          if ($history.length > 0) {
+            input = $history[$history.length - 1];
+            e.currentTarget.innerText = input;
+          }
+        }
+
+        if (e.key == "ArrowDown") {
+          e.preventDefault();
+          if ($history.length > 0) {
+            input = $history[0];
+            e.currentTarget.innerText = input;
+          }
         }
       }}
       on:input={(e) => {

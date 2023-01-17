@@ -36,6 +36,7 @@ export interface IArticle {
 export const defaultLinks = [];
 export const socket = writable<Socket>();
 export const messages = writable<any[]>([]);
+export const history = writable<string[]>([]);
 export const menuToggle = writable(false);
 export const username = writable("");
 export const password = writable("");

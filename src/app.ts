@@ -154,10 +154,11 @@ io.on("connection", async (socket: MuSocket) => {
       console.log(err);
     }
 
-    if (session.cid || cid) {
-      const en = await player(session.cid);
-      socket.cid ||= session.cid || cid;
-      socket.join(session.cid);
+    if (session.cid || (cid && cid !== "")) {
+      const id = session.cid || cid;
+      const en = await player(id);
+      socket.cid ||= id;
+      socket.join(id);
       socket.join(en?.data?.location || "");
       set(en, "connected");
       const ctx = { socket, text: "", data: {}, scope: {} };
