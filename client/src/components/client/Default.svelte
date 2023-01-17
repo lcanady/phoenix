@@ -3,7 +3,7 @@
 </script>
 
 <div class="default">
-  {@html data.html}
+  {@html data?.html}
 </div>
 
 <style lang="scss">

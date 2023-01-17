@@ -2,13 +2,25 @@
   import { env } from "$env/dynamic/public";
   import { io } from "socket.io-client";
   import Look from "../../components/client/Look.svelte";
-  import { onMount } from "svelte";
+  import { afterUpdate, onMount } from "svelte";
   import { cid, menuItems, messages, socket, token } from "../../stores";
   import Welcome from "../../components/client/Welcome.svelte";
   import Default from "../../components/client/Default.svelte";
   import Pose from "../../components/client/Pose.svelte";
 
   $: input = "";
+  let output: HTMLDivElement;
+  let scroll: HTMLDivElement;
+
+  afterUpdate(() => {
+    console.log(output.scrollHeight - output.offsetHeight, output.scrollTop);
+    if (
+      output &&
+      output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) > -100
+    ) {
+      output.scrollTop = output.scrollHeight;
+    }
+  });
 
   const whichComponent = (cmd: any) => {
     switch (cmd?.toLowerCase()) {
@@ -47,7 +59,6 @@
       $socket.on("chat message", (msg: any) => {
         if (msg.data.cid) localStorage.setItem("cid", msg.data.cid);
         if (msg.data.token) localStorage.setItem("token", msg.data.token);
-        console.log(msg);
         $messages = [...$messages, msg];
       });
     }
@@ -56,7 +67,7 @@
 
 <div class="wrapper">
   <div class="container">
-    <div class="output scroller">
+    <div class="output" id="scroller" bind:this={output}>
       {#each $messages as message}
         <div>
           <svelte:component
@@ -65,10 +76,10 @@
           />
         </div>
       {/each}
-      <div class="scroll" />
+      <div id="scroll" bind:this={scroll} />
     </div>
     <div
-      placeholder="Type Somehting..."
+      placeholder="Type Something..."
       class="input"
       contenteditable="true"
       on:paste={(e) => {
@@ -110,16 +121,16 @@
     max-height: webkit-fill-available;
   }
 
-  .scroller * {
+  :global(#scroller *) {
     overflow-anchor: none;
   }
 
-  .scroller::-webkit-scrollbar {
+  #scroller::-webkit-scrollbar {
     display: none;
   }
 
-  .scroll {
-    overflow-anchor: auto;
+  #scroll {
+    overflow-anchor: auto !important;
     height: 1px;
   }
 
@@ -133,7 +144,7 @@
     outline: none;
     background-color: rgba(255, 255, 255, 0.01);
     word-wrap: break-word;
-    word-break: break-all;
+    word-break: normal;
   }
 
   .input:empty:before {

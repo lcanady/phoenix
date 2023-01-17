@@ -160,6 +160,8 @@ io.on("connection", async (socket: MuSocket) => {
       socket.join(session.cid);
       socket.join(en?.data?.location || "");
       set(en, "connected");
+      const ctx = { socket, text: "", data: {}, scope: {} };
+      login(ctx, en);
       send(socket.id, "Welcome back to the game!", { cid: en._id });
     } else {
       const connect = text.get("connect") || "Welcome to the game!";
@@ -170,6 +172,9 @@ io.on("connection", async (socket: MuSocket) => {
         if (id) {
           const en = await player(id);
           socket.cid = id;
+          socket.request.session.cid = id;
+          socket.request.session.save();
+
           socket.join(id);
           socket.join(en?.data?.location || "");
           set(en, "connected");

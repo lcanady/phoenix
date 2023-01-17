@@ -47,6 +47,7 @@ export const preview = writable(false);
 export const user = writable<any>();
 export const featured = writable([]);
 export const errorMsg = writable("");
+export const newMessage = writable(false);
 export const usefulLinks = writable([
   {
     name: "Useful Links",
