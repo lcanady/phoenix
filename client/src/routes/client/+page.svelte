@@ -10,6 +10,7 @@
     messages,
     socket,
     token,
+    user,
   } from "../../stores";
   import Welcome from "../../components/client/Welcome.svelte";
   import Default from "../../components/client/Default.svelte";
@@ -22,7 +23,7 @@
   afterUpdate(() => {
     if (
       output &&
-      output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) > -100
+      output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) > -200
     ) {
       output.scrollTop = output.scrollHeight;
     }
@@ -43,7 +44,72 @@
     }
   };
 
+  $menuItems = [
+    {
+      name: "Commands",
+      title: true,
+    },
+    {
+      name: "Reconnect",
+      path: "#",
+      onClick: () => {
+        $socket?.disconnect();
+        $socket?.connect();
+      },
+    },
+    // mail
+    //jobs
+    //sheet
+    //help
+
+    {
+      name: "mail",
+      path: "#",
+      onClick: () => {
+        $socket.emit("chat message", { msg: "@mail", data: {} });
+      },
+    },
+    {
+      name: "jobs",
+      path: "#",
+      onClick: () => {
+        $socket?.emit("chat message", {
+          mag: "jobs",
+          data: {
+            cmd: "jobs",
+          },
+        });
+      },
+    },
+    {
+      name: "sheet",
+      path: "#",
+      onClick: () => {
+        $socket?.emit("chat message", {
+          mag: "sheet",
+          data: {
+            cmd: "sheet",
+          },
+        });
+      },
+    },
+    {
+      name: "help",
+      path: "#",
+      onClick: () => {
+        $socket?.emit("chat message", {
+          mag: "help",
+          data: {
+            cmd: "help",
+          },
+        });
+      },
+    },
+  ];
+
   onMount(() => {
+    $messages = JSON.parse(localStorage.getItem("messages") || "[]");
+
     if (!$socket) {
       $socket = io(env.PUBLIC_BASE_URL, {
         auth: {
@@ -55,17 +121,35 @@
         },
       });
 
-      $menuItems = [
-        {
-          name: "Commands",
-          title: true,
-        },
-      ];
-
       $socket.on("chat message", (msg: any) => {
-        if (msg.data.cid) localStorage.setItem("cid", msg.data.cid);
-        if (msg.data.token) localStorage.setItem("token", msg.data.token);
+        if (msg.data.cid) {
+          $cid = msg.data.cid;
+          localStorage.setItem("cid", msg.data.cid);
+        }
+
+        if (msg.data.token) {
+          $token = msg.data.token;
+          localStorage.setItem("token", msg.data.token);
+        }
+
+        if (msg.data.user) $user = msg.data.user;
+
         $messages = [...$messages, msg];
+        localStorage.setItem("messages", JSON.stringify($messages));
+      });
+
+      $socket.on("disconnect", (reason) => {
+        if (
+          reason === "io server disconnect" ||
+          reason === "io client disconnect"
+        ) {
+          localStorage.removeItem("cid");
+          localStorage.removeItem("token");
+          localStorage.removeItem("messages");
+          $cid = "";
+          $token = "";
+          $user = "";
+        }
       });
     }
   });
@@ -73,12 +157,17 @@
 
 <div class="wrapper">
   <div class="container">
-    <div class="output" id="scroller" bind:this={output}>
+    <div
+      class="output"
+      id="scroller"
+      bind:this={output}
+      on:change={(e) => console.log("Changed!")}
+    >
       {#each $messages as message}
         <div>
           <svelte:component
             this={whichComponent(message.data?.cmd)}
-            data={message.data}
+            data={message.data || {}}
           />
         </div>
       {/each}
@@ -130,8 +219,8 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    height: 90vh;
-    max-height: webkit-fill-available;
+    max-height: 100vh;
+    max-height: -webkit-fill-available;
     width: 100vw;
   }
   .container {
@@ -140,8 +229,9 @@
     margin-right: 10px;
     display: flex;
     flex-direction: column;
-    max-height: 90vh;
-    max-height: webkit-fill-available;
+    max-height: 100vh;
+    padding-bottom: 40px;
+    max-height: -webkit-fill-available;
   }
 
   :global(#scroller *) {
@@ -166,6 +256,7 @@
     color: white;
     outline: none;
     background-color: rgba(255, 255, 255, 0.01);
+
     word-wrap: break-word;
     word-break: normal;
   }
@@ -187,6 +278,8 @@
   @media screen and (max-width: 1024px) {
     .container {
       margin-left: 0;
+      margin-right: 0;
+      padding-bottom: 0;
     }
   }
 </style>

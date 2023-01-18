@@ -13,6 +13,13 @@
     font-family: "Roboto Mono", monospace;
     font-weight: normal;
     word-break: break-all;
-    margin: 10px 0;
+
+    background: transparent;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .default {
+      margin: 5px 20px;
+    }
   }
 </style>

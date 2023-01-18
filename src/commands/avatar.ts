@@ -22,34 +22,38 @@ export default () => {
       tar.data.avatar = "";
 
       if (args[2]) {
-        const res = await axios.get(args[2], {
-          responseType: "stream",
-        });
-
-        const name = `${tar._id}-${Date.now()}.${
-          args[2].split(".").pop() || "png"
-        }`;
-        const writer = createWriteStream(`./public/uploads/${name}`);
-
-        new Promise((resolve, reject) => {
-          res.data.pipe(writer);
-          let error: any = null;
-          writer.on("error", (err) => {
-            error = err;
-            writer.close();
-            reject(err);
+        try {
+          const res = await axios.get(args[2], {
+            responseType: "stream",
           });
-          writer.on("close", () => {
-            if (!error) {
-              resolve(true);
-            }
-          });
-        });
 
-        tar.data ||= {};
-        tar.data.avatar = name;
-        await db.update({ _id: tar._id }, tar);
-        send(ctx.socket.id, `Avatar for %xh${displayName(en, tar)}%cn set.`);
+          const name = `${tar._id}-${Date.now()}.${
+            args[2].split(".").pop() || "png"
+          }`;
+          const writer = createWriteStream(`./public/uploads/${name}`);
+
+          await new Promise((resolve, reject) => {
+            res.data.pipe(writer);
+            let error: any = null;
+            writer.on("error", (err) => {
+              error = err;
+              writer.close();
+              reject(err);
+            });
+            writer.on("close", () => {
+              if (!error) {
+                resolve(true);
+              }
+            });
+          });
+
+          tar.data ||= {};
+          tar.data.avatar = name;
+          await db.update({ _id: tar._id }, tar);
+          send(ctx.socket.id, `Avatar for %xh${displayName(en, tar)}%cn set.`);
+        } catch (error: any) {
+          send(ctx.socket.id, `Error: ${error.message}`);
+        }
       } else {
         tar.data ||= {};
         await unlink(`./public/uploads/${tar.data.avatar}`).catch(() => {}); // ignore errors if file doesn't exist

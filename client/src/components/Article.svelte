@@ -83,10 +83,10 @@
     z-index: 1000;
     position: relative;
     width: 100%;
+    height: 92vh !important;
   }
   .words {
     position: absolute;
-    top: 30px;
     width: 100%;
     max-height: 100vh;
     max-height: -webkit-fill-available;

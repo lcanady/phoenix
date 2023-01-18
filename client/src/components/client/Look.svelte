@@ -43,8 +43,10 @@
     <table style="table-layout:fixed;">
       {#each data.contents as item}
         <tr>
-          <td style="width: 30%">{item.name}</td>
-          <td class="hide" style="width: 10%">{@html item.idle}</td>
+          <td class="name" style="width: 30%">{item.name}</td>
+          <td class="idle" style="width: 10%"
+            >{@html item.idle.replace("color:#000", "color:grey")}</td
+          >
           <td
             class="hide"
             style="max-width: 40%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
@@ -128,6 +130,39 @@
   @media screen and (max-width: 1360px) {
     .hide {
       display: none;
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    .avatar {
+      height: 300px;
+    }
+
+    h2 {
+      margin-left: 20px;
+    }
+
+    .name {
+      padding: 5px 20px;
+    }
+
+    h1 {
+      padding: 0 20px;
+    }
+
+    .avatar_container {
+      margin-top: -100px;
+      flex-direction: column;
+      text-align: center;
+      padding: 0 20px;
+      h1 {
+        font-size: 2rem;
+      }
+    }
+
+    p {
+      font-size: 1rem;
+      padding: 0 20px;
     }
   }
 </style>

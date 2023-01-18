@@ -3,6 +3,7 @@ import { send } from "../broadcast";
 import { addCmd, force } from "../cmds";
 import { db } from "../database";
 import flags from "../flags";
+import { signToken } from "../jwt";
 import { login } from "../utils";
 
 export default () =>
@@ -30,6 +31,16 @@ export default () =>
         ctx.data.player = user;
         send(ctx.socket.id, `Welcome back to the server, ${user.name}!`, {
           cid: user._id,
+          token: await signToken(user._id || ""),
+          user: {
+            id: user?._id,
+            dbref: `#${user.dbref}`,
+            username: user?.name,
+            flags: user?.flags,
+            isAdmin: flags.check(user?.flags || "", "builder+"),
+            avatar: user?.data?.avatar,
+            header: user?.data?.header,
+          },
         });
         await login(ctx, user);
         await force(ctx.socket, "@mail/notify");

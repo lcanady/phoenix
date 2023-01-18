@@ -11,7 +11,7 @@
     {#each $menuItems as item}
       {#if item.title}
         <li class:padding={item.padding}><h2>{item.name}</h2></li>
-      {:else if item.onClick}
+      {:else if item.onClick && !item.path}
         <li class:padding={item.padding}>
           <Button label={item.name} alt={item.alt} onClick={item.onClick} />
         </li>
@@ -19,7 +19,12 @@
         <li class:padding={item.padding}>
           <a
             href={item.path || "#"}
-            class:active={item.path === $page.url.pathname}>{item.name}</a
+            class:active={item.path === $page.url.pathname}
+            on:click={() => {
+              if (item.onClick) {
+                item.onClick();
+              }
+            }}>{item.name}</a
           >
         </li>
       {/if}

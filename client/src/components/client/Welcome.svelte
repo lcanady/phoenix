@@ -1,12 +1,23 @@
 <script lang="ts">
-  export const data: any = {};
+  export let data: any = {};
+  if (data?.data?.welcome) {
+    data = data.data.welcome;
+  }
 </script>
 
-<div class="container">
-  <div class="text">
-    <h1>Welcome To Bridgetown.</h1>
-    <p class="sub">An Anita Blake MU*</p>
-  </div>
+<div class="container" />
+<div class="text">
+  <h1>Welcome To Bridgetown.</h1>
+  <p class="sub">An Anita Blake MU*</p>
+  <blockquote>
+    <p class="instruct">
+      To connect, type 'connect &lt;name&gt; &lt;password&gt;'
+    </p>
+    <p class="instruct">
+      To create, type 'create &lt;name&gt; &lt;password&gt;'
+    </p>
+    <p class="instruct space">To quit type 'QUIT'</p>
+  </blockquote>
 </div>
 
 <style lang="scss">
@@ -20,15 +31,20 @@
     background-size: cover;
     background-position: center center;
     filter: saturate(0);
-    margin-bottom: 150px;
+  }
+
+  .instruct {
+    margin: 0;
+    margin-top: 2px;
+    font-family: "Roboto Mono", sans-serif;
+    font-size: 18px;
+    font-weight: lighter;
   }
 
   .text {
-    margin-top: 270px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    height: 100%;
     width: 100%;
     color: white;
     font-family: "Roboto Mono", monospace;
@@ -46,5 +62,15 @@
     margin: 0;
     margin-top: -5px;
     margin-bottom: 10px;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .text {
+      margin: 10px 20px;
+    }
+
+    blockquote {
+      width: 93%;
+    }
   }
 </style>

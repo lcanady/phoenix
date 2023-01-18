@@ -43,6 +43,8 @@ router.get("/user", async (req, res, next) => {
             username: user?.name,
             flags: user?.flags,
             isAdmin: flags.check(user?.flags || "", "builder+"),
+            avatar: user?.data?.avatar,
+            header: user?.data?.header,
           },
         };
         return res.status(200).json(data);

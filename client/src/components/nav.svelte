@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/stores";
   import { env } from "$env/dynamic/public";
+  import { PUBLIC_BASE_URL } from "$env/static/public";
   import axios from "axios";
   import { onMount } from "svelte";
   import { errorMsg, menuItems, menuToggle, token, user } from "../stores";
@@ -25,7 +26,7 @@
       }
     }
   });
-
+  $: vistoken = $token ? true : false;
   let visible = false;
 </script>
 
@@ -123,9 +124,12 @@
     <a href="/wiki" data-sveltekit-noscroll>WIKI</a>
     <a href="/client" data-sveltekit-noscroll> CLIENT</a>
 
-    {#if $token}
+    {#if vistoken}
       <img
-        src="/avatar.png"
+        class="avatar"
+        src={$user?.avatar
+          ? env.PUBLIC_BASE_URL + "uploads/" + $user?.avatar
+          : "/avatar.png"}
         alt="user"
         on:click={(e) => {
           e.preventDefault();
@@ -187,6 +191,15 @@
       cursor: pointer;
       letter-spacing: 5px;
     }
+  }
+
+  .avatar {
+    height: 32px;
+    width: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    filter: saturate(0);
+    border: 1px solid white;
   }
 
   .active {

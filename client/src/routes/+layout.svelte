@@ -33,12 +33,11 @@
 
   :global(body) {
     background: black;
-    min-height: 100vh;
-    min-height: -webkit-fill-available;
+    height: -webkit-fill-available;
   }
 
   :global(html) {
-    height: webkit-fill-available;
+    height: -webkit-fill-available;
     overflow: hidden;
   }
 
@@ -64,7 +63,7 @@
     display: flex;
     position: relative;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
     width: 100vw;
     background: black;
     padding: 0;
@@ -72,13 +71,14 @@
     align-items: center;
 
     /* mobile viewport bug fix */
-    min-height: -webkit-fill-available;
+    height: -webkit-fill-available;
   }
 
   .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+
     max-width: 1700px;
     width: 100%;
     position: relative;
@@ -105,7 +105,8 @@
     top: 0;
     left: 400px;
     height: 100vh;
-    padding-top: 100px;
+    height: -webkit-fill-available;
+    padding-top: 120px;
     width: 100%;
     z-index: 6000;
     color: white;
@@ -149,6 +150,13 @@
     .container {
       padding: 0 20px;
       margin: 0 20px;
+    }
+  }
+
+  @media screen and (max-width: 1024px) {
+    .container {
+      padding: 0;
+      margin: 0;
     }
   }
 </style>

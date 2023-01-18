@@ -1,12 +1,13 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
-
+  import { cid, user } from "../../stores";
   export let data: any = {};
 </script>
 
-<div class="container">
+<div class="container" class:right={$cid === data.enactor._id}>
   <img
     class="avatar"
+    class:right={$cid === data.enactor._id}
     src={data.enactor.avatar
       ? env.PUBLIC_BASE_URL + "uploads/" + data.enactor.avatar
       : "/default_avatar.png"}
@@ -17,12 +18,13 @@
 
 <style lang="scss">
   .container {
+    position: relative;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 20px;
     align-items: center;
-    margin: 10px 0;
+    margin: 15px 0;
   }
 
   .avatar {
@@ -50,9 +52,38 @@
     }
   }
 
-  @media screen and (max-width: 530px) {
+  @media screen and (max-width: 1024px) {
+    .container.right {
+      margin-right: 40px;
+      margin-left: 10%;
+    }
+
+    .avatar.right {
+      right: -30px;
+      left: inherit;
+    }
+    .avatar {
+      height: 48px;
+      width: 48px;
+      position: absolute;
+      left: -30px;
+      bottom: -30px;
+    }
+
+    .container {
+      background-color: #1e1e1e;
+      margin: 0;
+      max-width: 100%;
+      border-radius: 5px;
+      margin-left: 60px;
+      margin-right: 10%;
+      margin-bottom: 40px;
+      margin-top: 40px;
+      padding: 20px;
+    }
+
     p {
-      max-width: 55%;
+      max-width: 100%;
     }
   }
 </style>

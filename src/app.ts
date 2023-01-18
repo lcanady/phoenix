@@ -21,8 +21,9 @@ import { resolve } from "path";
 import auth from "./middleware/auth";
 import cors from "cors";
 import multer from "multer";
-import { verifyToken } from "./jwt";
+import { signToken, verifyToken } from "./jwt";
 import { login } from "./utils";
+import flags from "./flags";
 
 declare module "http" {
   interface IncomingMessage {
@@ -163,7 +164,21 @@ io.on("connection", async (socket: MuSocket) => {
       set(en, "connected");
       const ctx = { socket, text: "", data: {}, scope: {} };
       login(ctx, en);
-      send(socket.id, "Welcome back to the game!", { cid: en._id });
+      send(socket.id, "Welcome back to the game!", {
+        cid: en._id,
+        token: await signToken(en._id || ""),
+        data: {
+          user: {
+            id: en?._id,
+            dbref: `#${en.dbref}`,
+            username: en?.name,
+            flags: en?.flags,
+            isAdmin: flags.check(en?.flags || "", "builder+"),
+            avatar: en?.data?.avatar,
+            header: en?.data?.header,
+          },
+        },
+      });
     } else {
       const connect = text.get("connect") || "Welcome to the game!";
       send(socket.id, connect, { cmd: "welcome" });
@@ -179,7 +194,18 @@ io.on("connection", async (socket: MuSocket) => {
           socket.join(id);
           socket.join(en?.data?.location || "");
           set(en, "connected");
-          send(socket.id, "Welcome to the game!", { cid: en._id });
+          send(socket.id, "Welcome to the game!", {
+            cid: en._id,
+            user: {
+              id: en?._id,
+              dbref: `#${en.dbref}`,
+              username: en?.name,
+              flags: en?.flags,
+              isAdmin: flags.check(en?.flags || "", "builder+"),
+              avatar: en?.data?.avatar,
+              header: en?.data?.header,
+            },
+          });
           const ctx = { socket, text: "", data: {}, scope: {} };
           login(ctx, en);
           await force(ctx.socket, "@mail/notify");
