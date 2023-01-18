@@ -209,7 +209,11 @@
         }
       }}
       on:input={(e) => {
-        input = e.currentTarget.innerText;
+        input = e.currentTarget.innerText
+          .replace(/[\u2014]/g, "--") // emdash
+          .replace(/[\u2022]/g, "*") // bullet
+          .replace(/[\u2018\u2019]/g, "'") // smart single quotes
+          .replace(/[\u201C\u201D]/g, '"'); // smart double quotes;
       }}
     />
   </div>
