@@ -110,6 +110,13 @@
   onMount(() => {
     $messages = JSON.parse(localStorage.getItem("messages") || "[]");
 
+    if (
+      Notification.permission !== "granted" &&
+      Notification.permission !== "denied"
+    ) {
+      Notification.requestPermission();
+    }
+
     setTimeout(() => {
       if (output.scrollTop == 0) {
         output.scrollTop = output.scrollHeight;
@@ -139,6 +146,29 @@
         }
 
         if (msg.data.user) $user = msg.data.user;
+
+        if (
+          document.visibilityState !== "visible" &&
+          Notification.permission == "granted"
+        ) {
+          msg.data ||= {};
+          if (msg.data.enactor) {
+            const temp = document.createElement("div");
+            temp.innerHTML = msg.data.html;
+            const icon =
+              env.PUBLIC_BASE_URL + "uploads/" + msg.data.enactor.avatar ||
+              "/default_avatar.png";
+            const noti = new Notification("New Message on Bridgetown!", {
+              body: temp.innerText || msg.msg,
+              icon,
+            });
+
+            noti.onclick = () => {
+              window.focus();
+              noti.close();
+            };
+          }
+        }
 
         $messages = [...$messages, msg];
         localStorage.setItem("messages", JSON.stringify($messages));
@@ -199,19 +229,23 @@
           e.currentTarget.innerHTML = "";
         }
 
-        if (e.key == "ArrowUp") {
+        // Make a history of commands that uses ctr + up and ctr + down to
+        // navigate through them.
+        if (e.key == "ArrowUp" && e.ctrlKey) {
           e.preventDefault();
           if ($history.length > 0) {
             input = $history[$history.length - 1];
             e.currentTarget.innerText = input;
+            e.currentTarget.innerHTML = input;
           }
         }
 
-        if (e.key == "ArrowDown") {
+        if (e.key == "ArrowDown" && e.ctrlKey) {
           e.preventDefault();
           if ($history.length > 0) {
             input = $history[0];
             e.currentTarget.innerText = input;
+            e.currentTarget.innerHTML = input;
           }
         }
       }}

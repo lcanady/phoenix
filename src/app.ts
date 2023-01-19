@@ -156,7 +156,6 @@ io.on("connection", async (socket: MuSocket) => {
     }
     console.log(session.cid || cid);
     if (session.cid || (cid && cid !== "")) {
-      console.log("Nope!");
       const id = session.cid || cid;
       const en = await player(id);
 
@@ -166,7 +165,7 @@ io.on("connection", async (socket: MuSocket) => {
       set(en, "connected");
       const ctx = { socket, text: "", data: {}, scope: {} };
       login(ctx, en);
-      send(socket.id, "Welcome back to the game!", {
+      send(socket.id, "", {
         cid: en._id,
         token: await signToken(en._id || ""),
         data: {
@@ -222,6 +221,31 @@ io.on("connection", async (socket: MuSocket) => {
 
   socket.on("chat message", (msg) => {
     matchCmd({ socket, text: msg.msg, data: msg.data, scope: {} });
+  });
+
+  socket.on("reconnect", async () => {
+    const en = await player(socket.cid || "");
+    if (en) {
+      socket.join(en.data?.location || "");
+      set(en, "connected");
+      send(socket.id, "Welcome back to the game!", {
+        cid: en._id,
+        user: {
+          id: en?._id,
+          dbref: `#${en.dbref}`,
+          username: en?.name,
+          flags: en?.flags,
+          isAdmin: flags.check(en?.flags || "", "builder+"),
+          avatar: en?.data?.avatar,
+          header: en?.data?.header,
+        },
+      });
+      const ctx = { socket, text: "", data: {}, scope: {} };
+      login(ctx, en);
+      await force(ctx.socket, "@mail/notify");
+      await force(ctx.socket, "@myjobs");
+      await force(ctx.socket, "look");
+    }
   });
 
   socket.on("disconnect", async (reason) => {

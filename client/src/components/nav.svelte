@@ -62,7 +62,6 @@
             href="/profile"
             on:click={(e) => {
               e.preventDefault();
-              console.log($user);
               goto("/profile/" + $user.id);
               menuToggle.set(false);
             }}>PROFILE</a

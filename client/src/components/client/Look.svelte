@@ -26,12 +26,16 @@
       />
       <div class="text">
         <h1>{data.target}</h1>
-        <p class="sub">{data.shortdesc}</p>
+        {#if data.shortdesc}
+          <p class="sub">{data.shortdesc}</p>
+        {/if}
       </div>
     </div>
   {:else}
     <h1>{data.target}</h1>
-    <p class="sub">{data.shortdesc}</p>
+    {#if data.shortdesc}
+      <p class="sub">{data.shortdesc}</p>
+    {/if}
   {/if}
 
   {#if data.flags.includes("player")}
@@ -52,8 +56,12 @@
             class="hide"
             style="max-width: 40%; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;"
           >
-            {item.shortdesc}</td
-          >
+            {#if item.shortdesc}
+              {item.shortdesc}
+            {:else}
+              {@html "<span style='color: grey;'>Use '&short-desc me=&lt;desc&gt;' to set a short description.</span>"}
+            {/if}
+          </td>
         </tr>
       {/each}
     </table>
@@ -68,7 +76,6 @@
             class="exit_name"
             style="width: 30%"
             on:click={() => {
-              console.log(item.dest);
               $socket.emit("chat message", { msg: item.dest, data: {} });
             }}
             on:keydown={(e) => {
