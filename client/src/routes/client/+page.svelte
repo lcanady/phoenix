@@ -146,20 +146,20 @@
         }
 
         if (msg.data.user) $user = msg.data.user;
-
         if (
           document.visibilityState !== "visible" &&
           Notification.permission == "granted"
         ) {
           msg.data ||= {};
-          if (msg.data.enactor) {
+          if (msg.data.html) {
             const temp = document.createElement("div");
-            temp.innerHTML = msg.data.html;
+            temp.innerHTML = msg.data?.html;
             const icon =
-              env.PUBLIC_BASE_URL + "uploads/" + msg.data.enactor.avatar ||
+              env.PUBLIC_BASE_URL + "uploads/" + msg.data?.enactor?.avatar ||
               "/default_avatar.png";
+            console.log(temp.innerText, icon);
             const noti = new Notification("New Message on Bridgetown!", {
-              body: temp.innerText || msg.msg,
+              body: temp.innerText,
               icon,
             });
 
@@ -169,7 +169,6 @@
             };
           }
         }
-
         $messages = [...$messages, msg];
         localStorage.setItem("messages", JSON.stringify($messages));
       });
