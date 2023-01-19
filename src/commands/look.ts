@@ -123,7 +123,8 @@ export default () =>
           })),
           exits: exits.map((item) => ({
             _id: item._id,
-            name: displayName(player, item),
+            name: sub(displayName(player, item)),
+            dest: item.name.split(";")[0],
           })),
         });
       }

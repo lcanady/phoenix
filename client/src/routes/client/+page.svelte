@@ -23,7 +23,7 @@
   afterUpdate(() => {
     if (
       output &&
-      output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) > -200
+      output?.scrollTop - (output?.scrollHeight - output?.offsetHeight) >= -500
     ) {
       output.scrollTop = output.scrollHeight;
     }
@@ -110,6 +110,12 @@
   onMount(() => {
     $messages = JSON.parse(localStorage.getItem("messages") || "[]");
 
+    setTimeout(() => {
+      if (output.scrollTop == 0) {
+        output.scrollTop = output.scrollHeight;
+      }
+    }, 200);
+
     if (!$socket) {
       $socket = io(env.PUBLIC_BASE_URL, {
         auth: {
@@ -146,6 +152,7 @@
           localStorage.removeItem("cid");
           localStorage.removeItem("token");
           localStorage.removeItem("messages");
+          $messages = [];
           $cid = "";
           $token = "";
           $user = "";

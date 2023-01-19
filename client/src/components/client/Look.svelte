@@ -1,5 +1,6 @@
 <script lang="ts">
   import { env } from "$env/dynamic/public";
+  import { socket } from "../../stores";
 
   export let data: any = {};
 </script>
@@ -57,6 +58,29 @@
       {/each}
     </table>
   {/if}
+
+  {#if data.exits.length > 0}
+    <h2>Exits</h2>
+    <table style="table-layout:fixed;">
+      <tr class="exits">
+        {#each data.exits as item}
+          <td
+            class="exit_name"
+            style="width: 30%"
+            on:click={() => {
+              console.log(item.dest);
+              $socket.emit("chat message", { msg: item.dest, data: {} });
+            }}
+            on:keydown={(e) => {
+              if (e.key === "Enter") {
+                $socket.emit("chat message", { msg: item.dest, data: {} });
+              }
+            }}>{@html item.name}</td
+          >
+        {/each}
+      </tr>
+    </table>
+  {/if}
 </div>
 
 <style lang="scss">
@@ -92,13 +116,66 @@
     td {
       padding: 5px;
       vertical-align: center;
-      word-break: break-all;
+      word-break: break-word;
+    }
+  }
+
+  tr.exits {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    td {
+      width: calc(100% / 3);
+      margin-bottom: 10px;
+    }
+
+    td {
+      cursor: pointer;
+      text-decoration: underline;
     }
   }
 
   h1 {
     margin-top: 20px;
     margin-bottom: 0;
+  }
+
+  .name {
+    color: #fff;
+    cursor: pointer;
+    &:hover {
+      color: #fff;
+      text-decoration: underline;
+    }
+  }
+
+  .idle {
+    color: #fff;
+  }
+
+  h2 {
+    margin-top: 20px;
+    margin-bottom: 0;
+  }
+
+  .desc {
+    color: white;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    margin: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+
+  .desc2 {
+    color: white;
+    white-space: pre-wrap;
+    line-height: 1.5;
+    margin: 0;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    padding: 0 20px;
+    font-size: 1.2rem;
   }
 
   .sub {
@@ -158,6 +235,23 @@
       h1 {
         font-size: 2rem;
       }
+    }
+
+    tr.exits {
+      display: flex;
+      flex-direction: column;
+      td {
+        width: 100% !important;
+        margin: 0 20px;
+      }
+    }
+
+    h2 {
+      margin-left: 20px;
+    }
+
+    .desc {
+      padding: 0 20px;
     }
 
     p {

@@ -12,7 +12,7 @@
     font-size: 16px;
     font-family: "Roboto Mono", monospace;
     font-weight: normal;
-    word-break: break-all;
+    word-break: break-word;
 
     background: transparent;
   }

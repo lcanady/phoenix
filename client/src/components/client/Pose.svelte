@@ -54,12 +54,12 @@
 
   @media screen and (max-width: 1024px) {
     .container.right {
-      margin-right: 40px;
+      margin-right: 60px;
       margin-left: 10%;
     }
 
     .avatar.right {
-      right: -30px;
+      right: -40px;
       left: inherit;
     }
     .avatar {
