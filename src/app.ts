@@ -154,10 +154,12 @@ io.on("connection", async (socket: MuSocket) => {
     if (err) {
       console.log(err);
     }
-
+    console.log(session.cid || cid);
     if (session.cid || (cid && cid !== "")) {
+      console.log("Nope!");
       const id = session.cid || cid;
       const en = await player(id);
+
       socket.cid ||= id;
       socket.join(id);
       socket.join(en?.data?.location || "");
@@ -179,42 +181,42 @@ io.on("connection", async (socket: MuSocket) => {
           },
         },
       });
-    } else {
-      const connect = text.get("connect") || "Welcome to the game!";
-      send(socket.id, connect, { cmd: "welcome" });
+    } else if (token) {
+      console.log("Hmmmm");
+      const id = await verifyToken(token);
+      if (id) {
+        const en = await player(id);
+        socket.cid = id;
+        socket.request.session.cid = id;
+        socket.request.session.save();
 
-      if (token) {
-        const id = await verifyToken(token);
-        if (id) {
-          const en = await player(id);
-          socket.cid = id;
-          socket.request.session.cid = id;
-          socket.request.session.save();
-
-          socket.join(id);
-          socket.join(en?.data?.location || "");
-          set(en, "connected");
-          send(socket.id, "Welcome to the game!", {
-            cid: en._id,
-            user: {
-              id: en?._id,
-              dbref: `#${en.dbref}`,
-              username: en?.name,
-              flags: en?.flags,
-              isAdmin: flags.check(en?.flags || "", "builder+"),
-              avatar: en?.data?.avatar,
-              header: en?.data?.header,
-            },
-          });
-          const ctx = { socket, text: "", data: {}, scope: {} };
-          login(ctx, en);
-          await force(ctx.socket, "@mail/notify");
-          await force(ctx.socket, "@myjobs");
-          await force(ctx.socket, "look");
-        }
+        socket.join(id);
+        socket.join(en?.data?.location || "");
+        set(en, "connected");
+        send(socket.id, "Welcome to the game!", {
+          cid: en._id,
+          user: {
+            id: en?._id,
+            dbref: `#${en.dbref}`,
+            username: en?.name,
+            flags: en?.flags,
+            isAdmin: flags.check(en?.flags || "", "builder+"),
+            avatar: en?.data?.avatar,
+            header: en?.data?.header,
+          },
+        });
+        const ctx = { socket, text: "", data: {}, scope: {} };
+        login(ctx, en);
+        await force(ctx.socket, "@mail/notify");
+        await force(ctx.socket, "@myjobs");
+        await force(ctx.socket, "look");
       }
 
       session.save();
+    } else {
+      send(socket.id, text.get("connect") || "Welcome to the game!", {
+        cmd: "welcome",
+      });
     }
   });
 
