@@ -109,6 +109,10 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
   allowRequest: (req, callback) => {
     // with HTTP long-polling, we have access to the HTTP response here, but this is not
     // the case with WebSocket, so we provide a dummy response object

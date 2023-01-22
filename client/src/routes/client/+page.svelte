@@ -93,7 +93,6 @@
         auth: {
           token: $token,
         },
-        transports: ["websocket"],
         query: {
           cid: $cid,
         },
