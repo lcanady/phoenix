@@ -1,7 +1,7 @@
 {
   "scripts": {
     "start": "ts-node src/index.ts",
-    "dev": "concurrently  \"ts-node-dev src/index.ts\" \"npm --prefix ./client run dev\"",
+    "dev": "concurrently  \"ts-node-dev src/index.ts\" \"npm --prefix ./client run dev --host\"",
     "build": "tsc"
   },
   "devDependencies": {

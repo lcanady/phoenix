@@ -6,6 +6,7 @@
   import {
     cid,
     history,
+    historyIndex,
     menuItems,
     messages,
     socket,
@@ -69,46 +70,10 @@
         $socket.emit("chat message", { msg: "@mail", data: {} });
       },
     },
-    {
-      name: "jobs",
-      path: "#",
-      onClick: () => {
-        $socket?.emit("chat message", {
-          mag: "jobs",
-          data: {
-            cmd: "jobs",
-          },
-        });
-      },
-    },
-    {
-      name: "sheet",
-      path: "#",
-      onClick: () => {
-        $socket?.emit("chat message", {
-          mag: "sheet",
-          data: {
-            cmd: "sheet",
-          },
-        });
-      },
-    },
-    {
-      name: "help",
-      path: "#",
-      onClick: () => {
-        $socket?.emit("chat message", {
-          mag: "help",
-          data: {
-            cmd: "help",
-          },
-        });
-      },
-    },
   ];
 
   onMount(() => {
-    $messages = JSON.parse(localStorage.getItem("messages") || "[]");
+    $messages = JSON.parse(sessionStorage.getItem("messages") || "[]");
 
     if (
       Notification.permission !== "granted" &&
@@ -137,12 +102,12 @@
       $socket.on("chat message", (msg: any) => {
         if (msg.data.cid) {
           $cid = msg.data.cid;
-          localStorage.setItem("cid", msg.data.cid);
+          sessionStorage.setItem("cid", msg.data.cid);
         }
 
         if (msg.data.token) {
           $token = msg.data.token;
-          localStorage.setItem("token", msg.data.token);
+          sessionStorage.setItem("token", msg.data.token);
         }
 
         if (msg.data.user) $user = msg.data.user;
@@ -154,10 +119,13 @@
           if (msg.data.html) {
             const temp = document.createElement("div");
             temp.innerHTML = msg.data?.html;
-            const icon =
-              env.PUBLIC_BASE_URL + "uploads/" + msg.data?.enactor?.avatar ||
-              "/default_avatar.png";
-            console.log(temp.innerText, icon);
+            let icon: string;
+            try {
+              icon =
+                env.PUBLIC_BASE_URL + "uploads/" + msg.data?.enactor?.avatar;
+            } catch {
+              icon = "/default_avatar.png";
+            }
             const noti = new Notification("New Message on Bridgetown!", {
               body: temp.innerText,
               icon,
@@ -170,7 +138,7 @@
           }
         }
         $messages = [...$messages, msg];
-        localStorage.setItem("messages", JSON.stringify($messages));
+        sessionStorage.setItem("messages", JSON.stringify($messages));
       });
 
       $socket.on("disconnect", (reason) => {
@@ -178,9 +146,9 @@
           reason === "io server disconnect" ||
           reason === "io client disconnect"
         ) {
-          localStorage.removeItem("cid");
-          localStorage.removeItem("token");
-          localStorage.removeItem("messages");
+          sessionStorage.removeItem("cid");
+          sessionStorage.removeItem("token");
+          sessionStorage.removeItem("messages");
           $messages = [];
           $cid = "";
           $token = "";
@@ -221,30 +189,37 @@
       on:keydown={(e) => {
         if (e.key == "Enter" && input.trim() != "") {
           e.preventDefault();
-          $history = [...$history, input.trim()];
-          $socket.emit("chat message", { msg: input.trim(), data: {} });
-          input = "";
           e.currentTarget.innerText = "";
           e.currentTarget.innerHTML = "";
+          $socket.emit("chat message", { msg: input.trim(), data: {} });
+
+          // add to the histoy
+          $history = [...$history, input.trim()];
+          input = "";
         }
 
-        // Make a history of commands that uses ctr + up and ctr + down to
-        // navigate through them.
+        // if ctrl + up or ctrl + down is pressed
+        // then go through the history  if we reach the end of the history
+        // then loop back through.
         if (e.key == "ArrowUp" && e.ctrlKey) {
           e.preventDefault();
           if ($history.length > 0) {
-            input = $history[$history.length - 1];
-            e.currentTarget.innerText = input;
-            e.currentTarget.innerHTML = input;
+            if ($historyIndex == -1) {
+              $historyIndex = $history.length - 1;
+            } else if ($historyIndex > 0) {
+              $historyIndex--;
+            }
+            e.currentTarget.innerText = $history[$historyIndex];
           }
-        }
-
-        if (e.key == "ArrowDown" && e.ctrlKey) {
+        } else if (e.key == "ArrowDown" && e.ctrlKey) {
           e.preventDefault();
           if ($history.length > 0) {
-            input = $history[0];
-            e.currentTarget.innerText = input;
-            e.currentTarget.innerHTML = input;
+            if ($historyIndex < $history.length - 1) {
+              $historyIndex++;
+            } else {
+              $historyIndex = -1;
+            }
+            e.currentTarget.innerText = $history[$historyIndex] || "";
           }
         }
       }}

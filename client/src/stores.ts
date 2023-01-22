@@ -37,6 +37,7 @@ export const defaultLinks = [];
 export const socket = writable<Socket>();
 export const messages = writable<any[]>([]);
 export const history = writable<string[]>([]);
+export const historyIndex = writable(-1);
 export const menuToggle = writable(false);
 export const username = writable("");
 export const password = writable("");
