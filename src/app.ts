@@ -185,7 +185,6 @@ io.on("connection", async (socket: MuSocket) => {
         },
       });
     } else if (token) {
-      console.log("Hmmmm");
       const id = await verifyToken(token);
       if (id) {
         const en = await player(id);
@@ -262,6 +261,10 @@ io.on("connection", async (socket: MuSocket) => {
       await set(en, "!connected");
       if (en) send(en.data?.location || "", `${en.name} has disconnected.`);
     }
+  });
+
+  socket.on("connect_error", (err) => {
+    console.log(`connect_error due to ${err.message}`);
   });
 });
 
